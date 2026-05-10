@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Users, Edit2, Share2, PlaneLanding, MapPin, Clock, Camera, ArrowLeft, Loader2, Calendar, Map, DollarSign, Hotel, Train, FileText, Plus, Trash2, Wallet, Utensils, Activity, CheckCircle } from "lucide-react";
+import { Users, Edit2, Share2, PlaneLanding, MapPin, Clock, Camera, ArrowLeft, Loader2, Calendar, Map, IndianRupee, Hotel, Train, FileText, Plus, Trash2, Wallet, Utensils, Activity, CheckCircle } from "lucide-react";
 import { getLocalTrip, updateLocalTrip } from "@/lib/localTrips";
 import { Trip } from "@/lib/types";
 
@@ -354,10 +354,10 @@ export default function TripItinerary() {
                       type="text"
                       value={formData.budget}
                       onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                      placeholder="e.g., $2000"
+                      placeholder="e.g., ₹2000"
                       className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full"
                     />
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
+                    <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
                   </div>
                 </div>
                 <div className="flex flex-col gap-xs flex-1">
@@ -384,13 +384,13 @@ export default function TripItinerary() {
                     <select
                       value={formData.transportation}
                       onChange={(e) => setFormData({...formData, transportation: e.target.value})}
-                      className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
+                      className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-black focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
                     >
-                      <option value="Flight">Flight</option>
-                      <option value="Train">Train</option>
-                      <option value="Car">Car</option>
-                      <option value="Bus">Bus</option>
-                      <option value="Other">Other</option>
+                      <option className="text-black" value="Flight">Flight</option>
+                      <option className="text-black" value="Train">Train</option>
+                      <option className="text-black" value="Car">Car</option>
+                      <option className="text-black" value="Bus">Bus</option>
+                      <option className="text-black" value="Other">Other</option>
                     </select>
                     <Train className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-outline pointer-events-none" />
                   </div>
@@ -401,13 +401,13 @@ export default function TripItinerary() {
                     <select
                       value={formData.accommodation}
                       onChange={(e) => setFormData({...formData, accommodation: e.target.value})}
-                      className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
+                      className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-black focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
                     >
-                      <option value="Hotel">Hotel</option>
-                      <option value="Hostel">Hostel</option>
-                      <option value="Airbnb">Airbnb</option>
-                      <option value="Resort">Resort</option>
-                      <option value="Other">Other</option>
+                      <option className="text-black" value="Hotel">Hotel</option>
+                      <option className="text-black" value="Hostel">Hostel</option>
+                      <option className="text-black" value="Airbnb">Airbnb</option>
+                      <option className="text-black" value="Resort">Resort</option>
+                      <option className="text-black" value="Other">Other</option>
                     </select>
                     <Hotel className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-outline pointer-events-none" />
                   </div>
