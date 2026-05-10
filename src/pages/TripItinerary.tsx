@@ -109,23 +109,24 @@ export default function TripItinerary() {
 
     const modeMultiplier = data.budgetMode === "Low" ? 0.7 : data.budgetMode === "Luxury" ? 2.0 : 1.0;
 
+    // Base costs in INR (Indian Rupees)
     let transportBase = 0;
-    if (data.transportation === "Flight") transportBase = 200;
-    else if (data.transportation === "Train") transportBase = 80;
-    else if (data.transportation === "Bus") transportBase = 40;
-    else if (data.transportation === "Car") transportBase = 50;
-    else transportBase = 100;
+    if (data.transportation === "Flight") transportBase = 8000;   // ~₹8,000 per person
+    else if (data.transportation === "Train") transportBase = 1500; // ~₹1,500 per person
+    else if (data.transportation === "Bus") transportBase = 800;   // ~₹800 per person
+    else if (data.transportation === "Car") transportBase = 3000;  // ~₹3,000 fuel/rental
+    else transportBase = 2000;
     const transportCost = transportBase * data.travelers * modeMultiplier;
 
     let stayBase = 0;
-    if (data.accommodation === "Hotel") stayBase = 100;
-    else if (data.accommodation === "Hostel") stayBase = 40;
-    else if (data.accommodation === "Airbnb") stayBase = 80;
-    else if (data.accommodation === "Resort") stayBase = 200;
-    else stayBase = 80;
+    if (data.accommodation === "Hotel") stayBase = 3500;   // ~₹3,500/night
+    else if (data.accommodation === "Hostel") stayBase = 800;    // ~₹800/night
+    else if (data.accommodation === "Airbnb") stayBase = 2500;   // ~₹2,500/night
+    else if (data.accommodation === "Resort") stayBase = 8000;   // ~₹8,000/night
+    else stayBase = 2000;
     const stayCost = stayBase * nights * modeMultiplier;
 
-    const foodCost = 25 * days * data.travelers * modeMultiplier;
+    const foodCost = 600 * days * data.travelers * modeMultiplier; // ~₹600/day/person
 
     let activitiesCost = 0;
     if (data.days) {
@@ -499,35 +500,35 @@ export default function TripItinerary() {
                     <div className="flex items-center gap-2 text-secondary mb-1">
                       <Train className="w-4 h-4" /> <span className="font-label-sm">Transport</span>
                     </div>
-                    <p className="font-body-lg text-on-surface font-medium">${estimatedBudget.transport}</p>
+                    <p className="font-body-lg text-on-surface font-medium">₹{estimatedBudget.transport.toLocaleString('en-IN')}</p>
                   </div>
                   <div className="bg-surface p-3 rounded-lg border border-outline-variant">
                     <div className="flex items-center gap-2 text-secondary mb-1">
                       <Hotel className="w-4 h-4" /> <span className="font-label-sm">Stay</span>
                     </div>
-                    <p className="font-body-lg text-on-surface font-medium">${estimatedBudget.stay}</p>
+                    <p className="font-body-lg text-on-surface font-medium">₹{estimatedBudget.stay.toLocaleString('en-IN')}</p>
                   </div>
                   <div className="bg-surface p-3 rounded-lg border border-outline-variant">
                     <div className="flex items-center gap-2 text-secondary mb-1">
                       <Utensils className="w-4 h-4" /> <span className="font-label-sm">Food</span>
                     </div>
-                    <p className="font-body-lg text-on-surface font-medium">${estimatedBudget.food}</p>
+                    <p className="font-body-lg text-on-surface font-medium">₹{estimatedBudget.food.toLocaleString('en-IN')}</p>
                   </div>
                   <div className="bg-surface p-3 rounded-lg border border-outline-variant">
                     <div className="flex items-center gap-2 text-secondary mb-1">
                       <Activity className="w-4 h-4" /> <span className="font-label-sm">Activities</span>
                     </div>
-                    <p className="font-body-lg text-on-surface font-medium">${estimatedBudget.activities}</p>
+                    <p className="font-body-lg text-on-surface font-medium">₹{estimatedBudget.activities.toLocaleString('en-IN')}</p>
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center justify-between bg-primary-container text-on-primary-container p-4 rounded-lg">
                   <div>
                     <span className="font-label-lg opacity-80">Total Estimated Budget</span>
-                    <p className="font-headline-lg font-bold">${estimatedBudget.total}</p>
+                    <p className="font-headline-lg font-bold">₹{estimatedBudget.total.toLocaleString('en-IN')}</p>
                   </div>
                   <div className="text-right mt-2 sm:mt-0">
                     <span className="font-label-md opacity-80 block">Estimated per day</span>
-                    <span className="font-headline-md font-medium">${Math.round(estimatedBudget.total / estimatedBudget.days)}</span>
+                    <span className="font-headline-md font-medium">₹{Math.round(estimatedBudget.total / estimatedBudget.days).toLocaleString('en-IN')}</span>
                   </div>
                 </div>
               </div>
@@ -594,35 +595,35 @@ export default function TripItinerary() {
                   <div className="flex items-center gap-2 text-secondary mb-1">
                     <Train className="w-4 h-4" /> <span className="font-label-sm">Transport</span>
                   </div>
-                  <p className="font-body-lg text-on-surface font-medium">${estimatedBudget.transport}</p>
+                  <p className="font-body-lg text-on-surface font-medium">₹{estimatedBudget.transport.toLocaleString('en-IN')}</p>
                 </div>
                 <div className="bg-surface p-3 rounded-lg border border-outline-variant">
                   <div className="flex items-center gap-2 text-secondary mb-1">
                     <Hotel className="w-4 h-4" /> <span className="font-label-sm">Stay</span>
                   </div>
-                  <p className="font-body-lg text-on-surface font-medium">${estimatedBudget.stay}</p>
+                  <p className="font-body-lg text-on-surface font-medium">₹{estimatedBudget.stay.toLocaleString('en-IN')}</p>
                 </div>
                 <div className="bg-surface p-3 rounded-lg border border-outline-variant">
                   <div className="flex items-center gap-2 text-secondary mb-1">
                     <Utensils className="w-4 h-4" /> <span className="font-label-sm">Food</span>
                   </div>
-                  <p className="font-body-lg text-on-surface font-medium">${estimatedBudget.food}</p>
+                  <p className="font-body-lg text-on-surface font-medium">₹{estimatedBudget.food.toLocaleString('en-IN')}</p>
                 </div>
                 <div className="bg-surface p-3 rounded-lg border border-outline-variant">
                   <div className="flex items-center gap-2 text-secondary mb-1">
                     <Activity className="w-4 h-4" /> <span className="font-label-sm">Activities</span>
                   </div>
-                  <p className="font-body-lg text-on-surface font-medium">${estimatedBudget.activities}</p>
+                  <p className="font-body-lg text-on-surface font-medium">₹{estimatedBudget.activities.toLocaleString('en-IN')}</p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row items-center justify-between bg-primary-container text-on-primary-container p-4 rounded-lg">
                 <div>
                   <span className="font-label-lg opacity-80">Total Estimated Budget</span>
-                  <p className="font-headline-lg font-bold">${estimatedBudget.total}</p>
+                  <p className="font-headline-lg font-bold">₹{estimatedBudget.total.toLocaleString('en-IN')}</p>
                 </div>
                 <div className="text-right mt-2 sm:mt-0">
                   <span className="font-label-md opacity-80 block">Estimated per day</span>
-                  <span className="font-headline-md font-medium">${Math.round(estimatedBudget.total / estimatedBudget.days)}</span>
+                  <span className="font-headline-md font-medium">₹{Math.round(estimatedBudget.total / estimatedBudget.days).toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
