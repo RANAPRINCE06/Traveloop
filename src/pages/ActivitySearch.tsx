@@ -79,19 +79,6 @@ export default function ActivitySearch() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-md md:gap-lg">
           {activities.map((activity) => (
             <div key={activity.id} className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col group hover:border-primary/50 transition-colors">
-              <div className="h-48 w-full relative bg-surface-container-high overflow-hidden">
-                <img
-                  src={activity.image}
-                  alt={activity.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                {activity.rating && (
-                  <div className="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm rounded-full px-sm py-xs flex items-center gap-xs shadow-sm">
-                    <Star className="w-[14px] h-[14px] text-tertiary-container fill-current" />
-                    <span className="font-label-md text-label-md text-on-surface">{activity.rating}</span>
-                  </div>
-                )}
-              </div>
               <div className="p-md flex flex-col flex-grow gap-sm">
                 <div>
                   <span className={`font-label-md text-label-md px-xs py-unit rounded flex w-max mb-xs ${
@@ -101,7 +88,15 @@ export default function ActivitySearch() {
                   }`}>
                     {activity.category}
                   </span>
-                  <h3 className="font-headline-sm text-headline-sm text-on-surface line-clamp-1">{activity.title}</h3>
+                  <div className="flex items-center justify-between mb-xs">
+                    <h3 className="font-headline-sm text-headline-sm text-on-surface line-clamp-1">{activity.title}</h3>
+                    {activity.rating && (
+                      <div className="flex items-center gap-xs ml-xs flex-shrink-0">
+                        <Star className="w-[14px] h-[14px] text-tertiary-container fill-current" />
+                        <span className="font-label-md text-label-md text-on-surface">{activity.rating}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <p className="font-body-sm text-body-sm text-secondary line-clamp-2 mt-xs">{activity.description}</p>
                 <div className="mt-auto pt-md flex justify-between items-center">
