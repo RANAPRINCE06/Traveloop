@@ -23,7 +23,7 @@ export default function Login() {
         }
       } catch (err: any) {
         console.error(err);
-        setError(err.message || "Google authentication failed.");
+        setError((err.code ? err.code + ': ' : '') + (err.message || "Google authentication failed."));
       }
     };
     handleRedirectResult();
@@ -41,7 +41,7 @@ export default function Login() {
       navigate(from, { replace: true });
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Authentication failed.");
+      setError((err.code ? err.code + ': ' : '') + (err.message || "Authentication failed."));
     }
   };
 
@@ -53,7 +53,7 @@ export default function Login() {
       // Note: Navigation will happen in useEffect after redirect
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Google authentication failed.");
+      setError((err.code ? err.code + ': ' : '') + (err.message || "Google authentication failed."));
     }
   };
 
