@@ -9,7 +9,7 @@ export default function ActivitySearch() {
       category: "Sights",
       title: "Eiffel Tower Summit Tour",
       description: "Experience panoramic views of Paris from the iconic summit. Includes skip-the-line elevator access...",
-      price: "$45",
+      price: "₹3,600",
       rating: "4.8",
       image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCWWJGWTLuyYlTTGm-WH5OStLPJcrMaukKKMo2y7aXuzJ6euynVvLY_dW1NKPnWjrRNw_uyq68mNjxavwvUSNaL3axMKh3YRe_FfnRM__an68UFC02JcSV1cE-R9QeYc9Lxpg4adUTK53a6YuRDSH4i1xRxrLjJzKEoxLoEBk3qN_39HEAKxwnPX0meNRO7ER5Hk91m29l6YwlD7zW4BxTFIapmeHd0TuId9jPEzyzevkjZqf81MFQbszptSCZnJvtMQ5UHL_byjthN",
     },
@@ -18,7 +18,7 @@ export default function ActivitySearch() {
       category: "Food",
       title: "Le Marais Food Walking Tour",
       description: "Taste your way through Paris's historic Le Marais district. Sample artisanal cheeses, fresh pastries...",
-      price: "$85",
+      price: "₹6,800",
       image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGc9UIJ5DBvA_scPSe7iE3EVf3vKEaKvrY6L3pfYPdUxZ6CizUrI3yx0vrO6v6FrJjgJbUCd5HPtTJ2lT3TFNT2OihragHkg2HlYpDYRJDhjvFDu467QD2b49Nh4G3FSxyQiWOoZSsxxmMrC75iTsDlx6p9GrX1LHV-yNZdTC8ZRLgwjkfjtJu9eJ4WSsIGvb9l60JpA9KZqJwswpVlSKYqBFv1Jei9R2Z1KUoWg1cXjfDDiLSH4q9ahUw1TB8dGUURkCXR1r3HKDl",
     },
     {
@@ -26,7 +26,7 @@ export default function ActivitySearch() {
       category: "Transport & Leisure",
       title: "Seine Evening Cruise",
       description: "Relax on a 1-hour cruise along the Seine River. See the city's illuminated monuments pass by as you...",
-      price: "$20",
+      price: "₹1,600",
       image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC3mfhUGYQ4eALeeIXyIUHNOqD2imUx4dXPC9_g-L9_VkB45-1UcB8QjyiAIN-jtNw96-vQqhDaVPvwWeinHuh0GOWJFZ0_bRIrpEPxUyLCrrJIy0FebCvXIJNBmhcESB01ctHGu_x54VOJDT0h3GRn5CXSKJJc4bQ3GOZWEHfgMvntwmr4Ft9JqY3QdHV0N_aJnBMGsuDGAJ9DetOZ51HNch98UCrEQOU4Epoqw-hkwNe2xae8bVOWOya-cEjARwoHWn-tinFqEINt",
     },
   ];

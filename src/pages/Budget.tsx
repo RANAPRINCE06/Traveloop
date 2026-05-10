@@ -91,7 +91,7 @@ export default function Budget() {
               </span>
             </div>
             <div className="font-headline-lg text-[48px] leading-[56px] font-bold text-primary mb-sm">
-              ${totalBudget.toLocaleString()}
+              ₹{totalBudget.toLocaleString('en-IN')}
             </div>
             <p className="font-body-md text-body-md text-secondary">
               Estimated total for {days} days.
@@ -105,7 +105,7 @@ export default function Budget() {
           </div>
           <h3 className="font-body-md text-body-md text-on-surface-variant mb-xs">Average cost per day</h3>
           <div className="font-headline-md text-headline-md text-on-surface">
-            ${Math.round(totalBudget / days).toLocaleString()}
+            ₹{Math.round(totalBudget / days).toLocaleString('en-IN')}
           </div>
         </div>
       </section>
@@ -137,7 +137,7 @@ export default function Budget() {
                   </div>
                   {isEditing ? (
                     <div className="flex items-center gap-2">
-                       <span className="text-secondary font-headline-sm text-headline-sm">$</span>
+                       <span className="text-secondary font-headline-sm text-headline-sm">₹</span>
                        <input 
                          type="number"
                          value={editValue}
@@ -153,13 +153,13 @@ export default function Budget() {
                        </button>
                     </div>
                   ) : (
-                    <span className="font-headline-sm text-headline-sm text-on-surface">${cat.amount.toLocaleString()}</span>
+                    <span className="font-headline-sm text-headline-sm text-on-surface">₹{cat.amount.toLocaleString('en-IN')}</span>
                   )}
                 </div>
                 <div className="flex flex-col gap-xs mt-sm">
                   <div className="flex justify-between font-label-md text-label-md text-secondary">
                     <span>{cat.percentage}% of budget</span>
-                    <span>${cat.amount.toLocaleString()} / ${totalBudget.toLocaleString()}</span>
+                    <span>₹{cat.amount.toLocaleString('en-IN')} / ₹{totalBudget.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
                     <div className="h-full bg-primary rounded-full" style={{ width: `${cat.percentage}%` }}></div>

@@ -4,6 +4,11 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "./lib/firebase";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
+import ProfilePersonal from "./pages/ProfilePersonal";
+import ProfileBilling from "./pages/ProfileBilling";
+import ProfileNotifications from "./pages/ProfileNotifications";
+import ProfileSection from "./pages/ProfileSection";
 import Dashboard from "./pages/Dashboard";
 import CreateTrip from "./pages/CreateTrip";
 import MyTrips from "./pages/MyTrips";
@@ -11,7 +16,6 @@ import TripItinerary from "./pages/TripItinerary";
 import ActivitySearch from "./pages/ActivitySearch";
 import Budget from "./pages/Budget";
 import PackingChecklist from "./pages/PackingChecklist";
-import Profile from "./pages/Profile";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const [user, setUser] = useState<User | null | undefined>(undefined);
@@ -54,6 +58,10 @@ function App() {
           <Route path="/trips/:tripId/search" element={<ActivitySearch />} />
           <Route path="/trips/:tripId/budget" element={<Budget />} />
           <Route path="/trips/:tripId/packing" element={<PackingChecklist />} />
+          <Route path="/profile/personal" element={<ProfilePersonal />} />
+          <Route path="/profile/billing" element={<ProfileBilling />} />
+          <Route path="/profile/notifications" element={<ProfileNotifications />} />
+          <Route path="/profile/:section" element={<ProfileSection />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
         

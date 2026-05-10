@@ -1,63 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #0058be;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #2170e4;
-  --color-on-primary-container: #fefcff;
-  --color-secondary: #585f6c;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #dce2f3;
-  --color-on-secondary-container: #5e6572;
-  --color-tertiary: #924700;
-  --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #b75b00;
-  --color-on-tertiary-container: #fffbff;
-  --color-error: #ba1a1a;
-  --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
-  --color-on-error-container: #93000a;
-  --color-background: #f8f9fa;
-  --color-on-background: #191c1d;
-  --color-surface: #f8f9fa;
-  --color-on-surface: #191c1d;
-  --color-surface-variant: #e1e3e4;
-  --color-on-surface-variant: #424754;
-  --color-outline: #727785;
-  --color-outline-variant: #c2c6d6;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f3f4f5;
-  --color-surface-container: #edeeef;
-  --color-surface-container-high: #e7e8e9;
-  --color-surface-container-highest: #e1e3e4;
+  --color-primary: #4DA8FF;
+  --color-on-primary: #0B1F3A;
+  --color-primary-container: #3C86D1;
+  --color-on-primary-container: #F8FAFC;
+  --color-secondary: #A7C7FF;
+  --color-on-secondary: #F8FAFC;
+  --color-secondary-container: rgba(77, 168, 255, 0.18);
+  --color-on-secondary-container: #0B1F3A;
+  --color-tertiary: #F4C95D;
+  --color-on-tertiary: #0B1F3A;
+  --color-tertiary-container: rgba(244, 201, 93, 0.18);
+  --color-on-tertiary-container: #1B2B44;
+  --color-error: #F87272;
+  --color-on-error: #0B1F3A;
+  --color-error-container: rgba(248, 114, 114, 0.18);
+  --color-on-error-container: #3B1020;
+  --color-success: #34D399;
+  --color-on-success: #0B1F3A;
+  --color-success-container: rgba(52, 211, 153, 0.18);
+  --color-on-success-container: #123427;
+  --color-background: #071227;
+  --color-on-background: #F8FAFC;
+  --color-surface: rgba(255,255,255,0.08);
+  --color-on-surface: #EAF5FF;
+  --color-surface-variant: rgba(255,255,255,0.12);
+  --color-on-surface-variant: #B8D0FF;
+  --color-outline: rgba(255,255,255,0.18);
+  --color-outline-variant: rgba(255,255,255,0.12);
+  --color-surface-container-lowest: rgba(255,255,255,0.08);
+  --color-surface-container-low: rgba(255,255,255,0.06);
+  --color-surface-container: rgba(255,255,255,0.05);
+  --color-surface-container-high: rgba(255,255,255,0.10);
+  --color-surface-container-highest: rgba(255,255,255,0.14);
 
-  --color-primary-fixed: #d8e2ff;
-  --color-primary-fixed-dim: #adc6ff;
-  --color-on-primary-fixed: #001a42;
-  --color-tertiary-fixed: #ffdcc6;
-  --color-tertiary-container: #b75b00;
+  --color-primary-fixed: rgba(77,168,255,0.15);
+  --color-primary-fixed-dim: rgba(77,168,255,0.10);
+  --color-on-primary-fixed: #F8FAFC;
+  --color-tertiary-fixed: rgba(244,201,93,0.15);
+  --color-tertiary-container: rgba(244,201,93,0.18);
 
-  --font-inter: "Inter", sans-serif;
-  --font-headline-lg: "Inter", sans-serif;
-  --font-headline-md: "Inter", sans-serif;
-  --font-headline-sm: "Inter", sans-serif;
-  --font-body-lg: "Inter", sans-serif;
-  --font-body-md: "Inter", sans-serif;
-  --font-body-sm: "Inter", sans-serif;
-  --font-label-md: "Inter", sans-serif;
+  --font-inter: "Poppins", sans-serif;
+  --font-headline-lg: "Poppins", sans-serif;
+  --font-headline-md: "Poppins", sans-serif;
+  --font-headline-sm: "Poppins", sans-serif;
+  --font-body-lg: "Poppins", sans-serif;
+  --font-body-md: "Poppins", sans-serif;
+  --font-body-sm: "Poppins", sans-serif;
+  --font-label-md: "Poppins", sans-serif;
 
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 40px;
-  --spacing-margin-mobile: 16px;
-  --spacing-margin-desktop: 32px;
-  --spacing-max-width: 1200px;
+  --spacing-xs: 6px;
+  --spacing-sm: 12px;
+  --spacing-md: 20px;
+  --spacing-lg: 28px;
+  --spacing-xl: 44px;
+  --spacing-margin-mobile: 20px;
+  --spacing-margin-desktop: 36px;
+  --spacing-max-width: 1240px;
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply rounded-[28px] border border-outline-variant bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.28)] transition-all duration-300;
+  }
+
+  .glass-card {
+    @apply rounded-[26px] border border-white/10 bg-surface-container-low border border-outline-variant backdrop-blur-xl shadow-[0_18px_40px_rgba(0,0,0,0.22)] transition-all duration-300;
+  }
+
+  .premium-button {
+    @apply inline-flex items-center justify-center rounded-[999px] px-6 py-3 font-semibold text-on-primary transition-all duration-300 shadow-[0_18px_40px_rgba(77,168,255,0.28)];
+    background: linear-gradient(135deg, #4DA8FF 0%, #6CB7FF 100%);
+  }
+
+  .premium-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 28px 60px rgba(77,168,255,0.32);
+  }
+
+  .premium-button-secondary {
+    @apply inline-flex items-center justify-center rounded-[999px] px-6 py-3 font-semibold text-primary border border-white/15 bg-white/5 transition-all duration-300;
+  }
+
+  .premium-button-secondary:hover {
+    transform: translateY(-1px);
+    background: rgba(255,255,255,0.10);
+    box-shadow: 0 18px 35px rgba(0,0,0,0.16);
+  }
+
+  .soft-shadow {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(77,168,255,0.35);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+  }
+
+  .nav-glass {
+    @apply sticky top-0 z-50 border border-white/10 bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.2)];
+  }
+
+  .page-shell {
+    @apply min-h-screen bg-[radial-gradient(circle_at_top,_rgba(77,168,255,0.12),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(244,201,93,0.12),_transparent_20%),bg-background] text-on-background;
+  }
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-on-background font-body-md;
+    font-family: var(--font-inter);
+    min-height: 100vh;
+    color: var(--color-on-background);
+    background-image: radial-gradient(circle at top left, rgba(77,168,255,0.12), transparent 28%), radial-gradient(circle at bottom right, rgba(244,201,93,0.10), transparent 24%);
+    background-color: var(--color-background);
+  }
+
+  * {
+    transition: all 0.25s ease;
+  }
+
+  input,
+  textarea,
+  button,
+  select {
+    font-family: var(--font-inter);
+  }
+
+  ::selection {
+    background: rgba(77,168,255,0.26);
+    color: var(--color-on-background);
   }
 }
