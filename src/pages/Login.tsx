@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, ArrowRight, UserPlus } from "lucide-react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 export default function Login() {
@@ -13,6 +13,21 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
+
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          navigate(from, { replace: true });
+        }
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Google authentication failed.");
+      }
+    };
+    handleRedirectResult();
+  }, [navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +49,8 @@ export default function Login() {
     setError(null);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      navigate(from, { replace: true });
+      await signInWithRedirect(auth, provider);
+      // Note: Navigation will happen in useEffect after redirect
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Google authentication failed.");

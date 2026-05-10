@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Calendar } from "lucide-react";
+import { Loader, CheckCircle } from "lucide-react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 
@@ -11,6 +11,7 @@ export default function CreateTrip() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   
   const navigate = useNavigate();
 
@@ -28,21 +29,25 @@ export default function CreateTrip() {
     
     setLoading(true);
     try {
-      await addDoc(collection(db, "trips"), {
+      const docRef = await addDoc(collection(db, "trips"), {
         userId: auth.currentUser.uid,
         name: tripName,
         startDate,
         endDate,
         description,
-        cities: 1, // Defaulting for now
+        cities: 1,
         status: "Planning",
-        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1000&auto=format&fit=crop", // placeholder
+        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1000&auto=format&fit=crop",
         createdAt: serverTimestamp()
       });
-      navigate("/trips");
+      setSuccess(true);
+      setTimeout(() => {
+        navigate(`/trips/${docRef.id}`);
+      }, 1500);
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Failed to create trip.");
+      setSuccess(false);
     } finally {
       setLoading(false);
     }
@@ -58,6 +63,7 @@ export default function CreateTrip() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
           {error && <div className="text-error bg-error-container p-3 rounded-lg text-sm">{error}</div>}
+          {success && <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm text-center flex items-center justify-center gap-sm border border-green-200"><CheckCircle className="w-5 h-5" /> Trip created successfully!</div>}
           <div className="flex flex-col gap-xs">
             <label htmlFor="tripName" className="font-label-md text-label-md text-on-surface">Trip Name</label>
             <input
@@ -81,7 +87,6 @@ export default function CreateTrip() {
                   onChange={(e) => setStartDate(e.target.value)}
                   className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-md pr-xl py-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
                 />
-                <Calendar className="absolute right-md top-1/2 -translate-y-1/2 w-5 h-5 text-outline pointer-events-none" />
               </div>
             </div>
 
@@ -95,7 +100,6 @@ export default function CreateTrip() {
                   onChange={(e) => setEndDate(e.target.value)}
                   className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-md pr-xl py-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
                 />
-                <Calendar className="absolute right-md top-1/2 -translate-y-1/2 w-5 h-5 text-outline pointer-events-none" />
               </div>
             </div>
           </div>
@@ -118,8 +122,15 @@ export default function CreateTrip() {
             <Link to="/trips" className="font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors py-sm px-md w-full md:w-auto text-center">
               Cancel
             </Link>
-            <button disabled={loading} type="submit" className="bg-primary text-on-primary font-label-md text-label-md px-xl py-sm rounded-lg hover:bg-primary-container transition-colors w-full md:w-auto shadow-sm disabled:opacity-50">
-              {loading ? "Saving..." : "Save Trip"}
+            <button disabled={loading || success} type="submit" className="bg-primary text-on-primary font-label-md text-label-md px-xl py-sm rounded-lg hover:bg-primary-container transition-colors w-full md:w-auto shadow-sm disabled:opacity-50 flex items-center justify-center gap-sm">
+              {loading ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Trip"
+              )}
             </button>
           </div>
         </form>

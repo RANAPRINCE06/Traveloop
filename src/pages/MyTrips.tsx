@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Calendar, MapPin, Edit2, Trash2, Loader2 } from "lucide-react";
-import { collection, query, where, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
 import { Trip } from "@/lib/types";
 
@@ -10,29 +11,39 @@ export default function MyTrips() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth.currentUser) return;
-    
-    // Fallback order by created at if needed
-    const q = query(
-      collection(db, "trips"),
-      where("userId", "==", auth.currentUser.uid)
-    );
+    let unsubscribeTrips = () => {};
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const tripsData: Trip[] = [];
-      snapshot.forEach((doc) => {
-        tripsData.push({ id: doc.id, ...doc.data() } as Trip);
+    const authUnsub = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        setTrips([]);
+        setLoading(false);
+        return;
+      }
+
+      const q = query(
+        collection(db, "trips"),
+        where("userId", "==", currentUser.uid)
+      );
+
+      unsubscribeTrips();
+      unsubscribeTrips = onSnapshot(q, (snapshot) => {
+        const tripsData: Trip[] = [];
+        snapshot.forEach((doc) => {
+          tripsData.push({ id: doc.id, ...doc.data() } as Trip);
+        });
+        tripsData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        setTrips(tripsData);
+        setLoading(false);
+      }, (error) => {
+        console.error("Error fetching trips:", error);
+        setLoading(false);
       });
-      // sorting manually for now to avoid compound index error if it occurs
-      tripsData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-      setTrips(tripsData);
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching trips:", error);
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      authUnsub();
+      unsubscribeTrips();
+    };
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -80,11 +91,9 @@ export default function MyTrips() {
               }`}
             >
               <div className={`h-48 w-full bg-surface-variant relative overflow-hidden ${trip.status === "Completed" ? "grayscale-[50%]" : ""}`}>
-                <img
-                  src={trip.image || "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1000&auto=format&fit=crop"}
-                  alt={trip.name}
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                />
+                <div className="w-full h-full bg-gradient-to-br from-surface-variant to-surface flex items-center justify-center text-[4rem] font-bold text-on-surface">
+                  {trip.name?.charAt(0).toUpperCase() || "T"}
+                </div>
                 <div className="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm px-sm py-xs rounded-full border border-outline-variant">
                   <span className="font-label-md text-label-md text-on-surface-variant">{trip.status}</span>
                 </div>
