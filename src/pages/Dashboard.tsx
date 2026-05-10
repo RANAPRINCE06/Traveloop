@@ -16,8 +16,8 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchTrips = () => {
       const tripsData = getLocalTrips();
-      // If user is logged in, optionally filter by user.uid? No, we are making it completely local.
-      tripsData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      // Sort by createdAt (which is now a number from Date.now())
+      tripsData.sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0));
       setTrips(tripsData);
     };
 
@@ -39,6 +39,52 @@ export default function Dashboard() {
   }, [user]);
 
   const recentTrips = trips.slice(0, 2);
+
+  // Real-time budget summary derived from all trips
+  const budgetSummary = useMemo(() => {
+    let totalEstimated = 0;
+    let totalSpent = 0;
+
+    trips.forEach(trip => {
+      // Sum up budget entries from Budget page (manual)
+      if (trip.budget) {
+        const b = trip.budget;
+        totalSpent += (b.stay || 0) + (b.transport || 0) + (b.food || 0) + (b.activities || 0);
+      }
+      // Sum up estimated costs from itinerary
+      if (trip.itinerary) {
+        const iten = trip.itinerary;
+        const modeMultiplier = iten.budgetMode === "Low" ? 0.7 : iten.budgetMode === "Luxury" ? 2.0 : 1.0;
+        let nights = 0, days = 0;
+        if (iten.startDate && iten.endDate) {
+          const diff = Math.ceil((new Date(iten.endDate).getTime() - new Date(iten.startDate).getTime()) / (1000 * 60 * 60 * 24));
+          nights = Math.max(0, diff);
+          days = Math.max(1, diff + 1);
+        }
+        const travelers = iten.travelers || 1;
+        let transportBase = iten.transportation === "Flight" ? 8000 : iten.transportation === "Train" ? 1500 : iten.transportation === "Bus" ? 800 : iten.transportation === "Car" ? 3000 : 2000;
+        let stayBase = iten.accommodation === "Hotel" ? 3500 : iten.accommodation === "Hostel" ? 800 : iten.accommodation === "Airbnb" ? 2500 : iten.accommodation === "Resort" ? 8000 : 2000;
+        const estTransport = transportBase * travelers * modeMultiplier;
+        const estStay = stayBase * nights * modeMultiplier;
+        const estFood = 600 * days * travelers * modeMultiplier;
+        let estActivities = 0;
+        if (iten.days) {
+          iten.days.forEach((day: any) => {
+            day.spots?.forEach((spot: any) => {
+              if (spot.cost) {
+                const n = parseFloat(spot.cost.replace(/[^0-9.]/g, ''));
+                if (!isNaN(n)) estActivities += n;
+              }
+            });
+          });
+        }
+        totalEstimated += Math.round(estTransport + estStay + estFood + estActivities);
+      }
+    });
+
+    const spentPercent = totalEstimated > 0 ? Math.min(100, Math.round((totalSpent / totalEstimated) * 100)) : 0;
+    return { totalEstimated, totalSpent, spentPercent };
+  }, [trips]);
 
   return (
     <main className="flex-1 w-full max-w-max-width mx-auto pb-24 md:pb-0">
@@ -66,25 +112,45 @@ export default function Dashboard() {
               <h2 className="font-headline-sm text-headline-sm text-on-surface">Budget Summary</h2>
               <Wallet className="w-6 h-6 text-secondary" />
             </div>
-            <div className="mb-lg">
-              <p className="font-label-md text-label-md text-secondary mb-1 uppercase tracking-wider">Total Available</p>
-              <p className="font-headline-lg text-headline-lg text-primary">
-                ₹3,40,000<span className="font-body-sm text-body-sm text-secondary"></span>
-              </p>
-            </div>
-            <div className="mt-auto">
-              <div className="flex justify-between font-label-md text-label-md text-secondary mb-2">
-                <span>Spent: ₹1,00,000</span>
-                <span>Limit: ₹4,40,000</span>
+            {trips.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center gap-sm py-lg">
+                <Wallet className="w-10 h-10 text-outline" />
+                <p className="font-body-sm text-secondary">No trips yet. Create a trip to see your budget summary.</p>
+                <Link to="/create" className="text-primary font-label-md hover:underline">Plan a trip →</Link>
               </div>
-              <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full w-[22%]"></div>
-              </div>
-              <div className="flex items-center gap-2 mt-4 bg-surface-container-low p-3 rounded-lg border border-surface-variant">
-                <TrendingUp className="w-5 h-5 text-tertiary-container" />
-                <span className="font-body-sm text-body-sm text-on-surface-variant">You're on track with your saving goals this month.</span>
-              </div>
-            </div>
+            ) : (
+              <>
+                <div className="mb-lg">
+                  <p className="font-label-md text-label-md text-secondary mb-1 uppercase tracking-wider">Total Estimated</p>
+                  <p className="font-headline-lg text-headline-lg text-primary">
+                    ₹{budgetSummary.totalEstimated.toLocaleString('en-IN')}
+                  </p>
+                  <p className="font-body-sm text-secondary mt-xs">across {trips.length} trip{trips.length !== 1 ? 's' : ''}</p>
+                </div>
+                <div className="mt-auto">
+                  <div className="flex justify-between font-label-md text-label-md text-secondary mb-2">
+                    <span>Spent: ₹{budgetSummary.totalSpent.toLocaleString('en-IN')}</span>
+                    <span>{budgetSummary.spentPercent}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-700"
+                      style={{ width: `${budgetSummary.spentPercent}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-4 bg-surface-container-low p-3 rounded-lg border border-surface-variant">
+                    <TrendingUp className="w-5 h-5 text-tertiary-container" />
+                    <span className="font-body-sm text-body-sm text-on-surface-variant">
+                      {budgetSummary.totalSpent === 0
+                        ? "Add budgets to your trips to track spending."
+                        : budgetSummary.spentPercent < 80
+                        ? "You're on track with your budget!"
+                        : "You're nearing your estimated budget."}
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
