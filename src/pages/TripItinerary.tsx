@@ -368,9 +368,9 @@ export default function TripItinerary() {
                       onChange={(e) => setFormData({...formData, budgetMode: e.target.value as any})}
                       className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
                     >
-                      <option value="Low">Low</option>
-                      <option value="Medium">Medium</option>
-                      <option value="Luxury">Luxury</option>
+                      <option className="text-on-surface" value="Low">Low</option>
+                      <option className="text-on-surface" value="Medium">Medium</option>
+                      <option className="text-on-surface" value="Luxury">Luxury</option>
                     </select>
                     <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-outline pointer-events-none" />
                   </div>
@@ -386,11 +386,11 @@ export default function TripItinerary() {
                       onChange={(e) => setFormData({...formData, transportation: e.target.value})}
                       className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
                     >
-                      <option value="Flight">Flight</option>
-                      <option value="Train">Train</option>
-                      <option value="Car">Car</option>
-                      <option value="Bus">Bus</option>
-                      <option value="Other">Other</option>
+                      <option className="text-on-surface" value="Flight">Flight</option>
+                      <option className="text-on-surface" value="Train">Train</option>
+                      <option className="text-on-surface" value="Car">Car</option>
+                      <option className="text-on-surface" value="Bus">Bus</option>
+                      <option className="text-on-surface" value="Other">Other</option>
                     </select>
                     <Train className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-outline pointer-events-none" />
                   </div>
@@ -403,11 +403,11 @@ export default function TripItinerary() {
                       onChange={(e) => setFormData({...formData, accommodation: e.target.value})}
                       className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
                     >
-                      <option value="Hotel">Hotel</option>
-                      <option value="Hostel">Hostel</option>
-                      <option value="Airbnb">Airbnb</option>
-                      <option value="Resort">Resort</option>
-                      <option value="Other">Other</option>
+                      <option className="text-on-surface" value="Hotel">Hotel</option>
+                      <option className="text-on-surface" value="Hostel">Hostel</option>
+                      <option className="text-on-surface" value="Airbnb">Airbnb</option>
+                      <option className="text-on-surface" value="Resort">Resort</option>
+                      <option className="text-on-surface" value="Other">Other</option>
                     </select>
                     <Hotel className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-outline pointer-events-none" />
                   </div>
@@ -420,16 +420,16 @@ export default function TripItinerary() {
                   <div className="text-secondary text-sm italic">Please select a Start and End Date to generate days.</div>
                 ) : (
                   <div className="border border-outline-variant rounded-lg overflow-hidden bg-surface flex flex-col md:flex-row">
-                    <div className="flex md:flex-col overflow-x-auto md:w-48 border-b md:border-b-0 md:border-r border-outline-variant bg-surface-container-lowest">
+                    <div className="flex md:flex-col overflow-x-auto md:w-48 border-b md:border-b-0 md:border-r border-outline-variant bg-surface-container-lowest items-start">
                       {formData.days.map(day => (
                         <button
                           key={day.id}
                           type="button"
                           onClick={() => setActiveDayId(day.id)}
-                          className={`px-4 py-3 text-left whitespace-nowrap text-sm transition-colors ${activeDayId === day.id ? 'bg-primary/10 text-primary font-medium border-l-4 border-primary' : 'text-secondary hover:bg-surface-container-low border-l-4 border-transparent'}`}
+                          className={`w-full flex flex-col items-start px-4 py-3 text-sm transition-colors ${activeDayId === day.id ? 'bg-primary/10 text-primary font-medium border-l-4 border-primary' : 'text-secondary hover:bg-surface-container-low border-l-4 border-transparent'}`}
                         >
-                          <div className="font-label-md">{day.label}</div>
-                          <div className="text-xs opacity-80">{new Date(day.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                          <div className="font-label-md leading-tight">{day.label}</div>
+                          <div className="text-xs opacity-80 mt-1">{new Date(day.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
                         </button>
                       ))}
                     </div>
