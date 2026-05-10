@@ -1,16 +1,24 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Circle, Plus, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Plus, Trash2, Loader2, Shirt, FileText, MonitorSmartphone, BriefcaseMedical, Package, RefreshCw, CloudSun, ChevronDown } from "lucide-react";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Trip, PackingItem } from "@/lib/types";
+
+const DEFAULT_CATEGORIES = [
+  { name: "Clothes", icon: Shirt },
+  { name: "Documents", icon: FileText },
+  { name: "Electronics", icon: MonitorSmartphone },
+  { name: "Medicine", icon: BriefcaseMedical },
+  { name: "Other", icon: Package },
+];
 
 export default function PackingChecklist() {
   const { tripId } = useParams();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
   const [newItemText, setNewItemText] = useState("");
-  const [showAdd, setShowAdd] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("Clothes");
 
   useEffect(() => {
     if (!tripId) return;
@@ -60,15 +68,17 @@ export default function PackingChecklist() {
       id: Date.now().toString(),
       text: newItemText.trim(),
       packed: false,
-      category: "Uncategorized" // We could parse or let user select, but grouping all new ones here works
+      category: selectedCategory
     };
     
     updateItems([...items, newItem]);
     setNewItemText("");
-    setShowAdd(false);
   };
 
-  const categories = Array.from(new Set(items.map(i => i.category)));
+  const resetList = () => {
+    const newItems = items.map(item => ({ ...item, packed: false }));
+    updateItems(newItems);
+  };
 
   if (loading) {
     return <div className="flex justify-center items-center h-full pt-32"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -78,78 +88,161 @@ export default function PackingChecklist() {
     return <div className="text-center pt-32">Trip not found</div>;
   }
 
+  // Get unique categories from default AND existing items
+  const activeCategories = Array.from(new Set([...DEFAULT_CATEGORIES.map(c => c.name), ...items.map(i => i.category)]));
+  
+  const totalItems = items.length;
+  const packedItems = items.filter(i => i.packed).length;
+  const progressPercentage = totalItems === 0 ? 0 : Math.round((packedItems / totalItems) * 100);
+
   return (
-    <main className="flex-1 w-full max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-lg pb-24 md:pb-xl flex flex-col gap-lg">
-       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-md mb-sm">
-        <div className="flex items-center gap-sm">
-          <Link to={`/trips/${tripId}`} className="text-secondary hover:text-primary hover:bg-surface-container-low p-2 rounded-full transition-colors flex items-center justify-center -ml-2">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
-          <h1 className="font-headline-md text-headline-md text-on-surface">Packing List</h1>
+    <main className="flex-1 w-full max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-lg pb-24 md:pb-xl flex flex-col gap-lg min-h-screen">
+      
+      {/* Header */}
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-md mb-2">
+        <div>
+          <div className="flex items-center gap-sm mb-1">
+            <Link to={`/trips/${tripId}`} className="text-secondary hover:text-primary transition-colors flex items-center justify-center -ml-1">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Packing Checklist</h1>
+          </div>
+          <p className="text-secondary font-body-md">Keep track of everything you need for your upcoming trip to <span className="font-medium text-on-surface">{trip.name}</span>.</p>
         </div>
-        <div className="flex items-center gap-sm">
-          {items.length > 0 && (
-            <div className="bg-surface-container-low px-4 py-2 rounded-full font-label-md text-label-md text-on-surface border border-outline-variant">
-              {items.filter(i => i.packed).length} / {items.length} Packed
-            </div>
-          )}
-          <button 
-            onClick={() => setShowAdd(!showAdd)}
-            className="bg-primary text-on-primary rounded-full p-2 flex items-center justify-center hover:bg-primary-container transition-colors shadow-sm"
-          >
-             <Plus className="w-5 h-5"/>
-          </button>
-        </div>
+        <button className="bg-primary-container text-primary font-label-md px-4 py-2.5 rounded-xl flex items-center gap-2 hover:bg-primary/20 transition-colors shrink-0 border border-primary/10">
+          <Plus className="w-4 h-4" /> Add Category
+        </button>
       </header>
 
-      {showAdd && (
-        <form onSubmit={handleAdd} className="flex items-center gap-2 bg-surface-container-low p-3 rounded-xl border border-outline-variant">
-           <input 
-             type="text" 
-             value={newItemText}
-             onChange={(e) => setNewItemText(e.target.value)}
-             className="flex-1 bg-transparent border-none outline-none text-on-surface"
-             placeholder="Add a new item..."
-             autoFocus
-           />
-           <button type="submit" className="font-label-md text-primary hover:text-primary-container">Add</button>
-        </form>
-      )}
+      {/* Input Bar */}
+      <form onSubmit={handleAdd} className="flex flex-col sm:flex-row items-center gap-3 bg-surface p-2 pl-4 rounded-2xl shadow-sm border border-outline-variant mb-4">
+        <div className="flex-1 w-full flex items-center gap-2">
+          <Plus className="w-5 h-5 text-outline" />
+          <input 
+            type="text" 
+            value={newItemText}
+            onChange={(e) => setNewItemText(e.target.value)}
+            className="w-full bg-transparent border-none outline-none text-on-surface font-body-md placeholder:text-outline"
+            placeholder="Add new item..."
+          />
+        </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-outline-variant pt-2 sm:pt-0 sm:pl-3">
+          <div className="relative">
+            <select 
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="appearance-none bg-transparent font-label-md text-on-surface py-2 pl-2 pr-8 outline-none cursor-pointer"
+            >
+              {activeCategories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-outline absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+          <button type="submit" className="bg-primary text-on-primary font-label-md px-6 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-sm w-full sm:w-auto shrink-0">
+            Add Item
+          </button>
+        </div>
+      </form>
 
-      {items.length === 0 ? (
-        <div className="text-center py-xl bg-surface-container-low border border-dashed border-outline-variant rounded-xl text-on-surface-variant font-body-md">
-          No items on your packing list yet. Click the + button to add some.
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Left Grid: Category Cards */}
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+          {activeCategories.map(category => {
+            const categoryItems = items.filter(i => i.category === category);
+            const packedCount = categoryItems.filter(i => i.packed).length;
+            const CatIcon = DEFAULT_CATEGORIES.find(c => c.name === category)?.icon || Package;
+
+            return (
+              <div key={category} className="bg-surface rounded-3xl p-6 shadow-sm border border-outline-variant flex flex-col min-h-[160px]">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <CatIcon className="w-6 h-6 text-primary" />
+                    <h3 className="font-headline-sm text-on-surface font-bold">{category}</h3>
+                  </div>
+                  <div className="bg-surface-container text-on-surface-variant font-label-sm px-2.5 py-0.5 rounded-full">
+                    {packedCount}/{categoryItems.length}
+                  </div>
+                </div>
+                
+                <div className="flex-1">
+                  {categoryItems.length === 0 ? (
+                    <p className="text-outline italic font-body-md mt-2">No items yet</p>
+                  ) : (
+                    <ul className="flex flex-col gap-2 mt-2">
+                      {categoryItems.map(item => (
+                        <li key={item.id} className="flex items-center justify-between group cursor-pointer" onClick={() => toggleItem(item.id)}>
+                          <div className="flex items-center gap-3">
+                            <button className="focus:outline-none shrink-0">
+                              {item.packed ? (
+                                <CheckCircle2 className="w-5 h-5 text-primary" />
+                              ) : (
+                                <Circle className="w-5 h-5 text-outline" />
+                              )}
+                            </button>
+                            <span className={`font-body-md transition-all ${item.packed ? 'text-outline line-through' : 'text-on-surface'}`}>
+                              {item.text}
+                            </span>
+                          </div>
+                          <button className="text-outline hover:text-error opacity-0 group-hover:opacity-100 transition-all p-1" onClick={(e) => deleteItem(e, item.id)}>
+                            <Trash2 className="w-4 h-4"/>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
-      ) : (
-        <div className="flex flex-col gap-xl">
-          {categories.map((category) => (
-            <section key={category} className="flex flex-col gap-sm">
-               <h2 className="font-headline-sm text-headline-sm text-secondary border-b border-outline-variant pb-xs">{category}</h2>
-               <ul className="flex flex-col">
-                 {items.filter(item => item.category === category).map((item) => (
-                    <li key={item.id} className="flex items-center justify-between py-xs group hover:bg-surface-container-lowest/50 rounded-lg px-xs -mx-xs transition-colors cursor-pointer" onClick={() => toggleItem(item.id)}>
-                      <div className="flex items-center gap-md">
-                        <button className="text-primary rounded-full focus:outline-none transition-colors">
-                          {item.packed ? (
-                             <CheckCircle2 className="w-6 h-6" />
-                          ) : (
-                             <Circle className="w-6 h-6 text-outline" />
-                          )}
-                        </button>
-                        <span className={`font-body-md text-body-md transition-all ${item.packed ? 'text-outline line-through' : 'text-on-surface'}`}>
-                          {item.text}
-                        </span>
-                      </div>
-                      <button className="text-outline hover:text-error opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all p-1" onClick={(e) => deleteItem(e, item.id)}>
-                         <Trash2 className="w-[18px] h-[18px]"/>
-                      </button>
-                    </li>
-                 ))}
-               </ul>
-            </section>
-          ))}
+
+        {/* Right Sidebar: Progress & Weather */}
+        <div className="w-full lg:w-[320px] flex flex-col gap-4 shrink-0">
+          
+          {/* Progress Card */}
+          <div className="bg-surface rounded-3xl p-6 shadow-sm border border-outline-variant">
+            <h3 className="font-headline-sm text-on-surface font-bold mb-3">Packing Progress</h3>
+            <div className="flex justify-between items-end mb-2">
+              <span className="text-secondary font-body-sm">{packedItems} of {totalItems} items packed</span>
+              <span className="text-primary font-bold text-sm">{progressPercentage}%</span>
+            </div>
+            <div className="w-full h-2.5 bg-surface-container rounded-full mb-6 overflow-hidden">
+              <div 
+                className="h-full bg-primary rounded-full transition-all duration-500 ease-out" 
+                style={{ width: `${progressPercentage}%` }}
+              ></div>
+            </div>
+            <button 
+              onClick={resetList}
+              className="w-full flex items-center justify-center gap-2 border border-outline-variant py-2.5 rounded-xl text-secondary hover:text-on-surface hover:bg-surface-container-lowest transition-colors font-label-md"
+            >
+              <RefreshCw className="w-4 h-4" /> Reset List
+            </button>
+          </div>
+
+          {/* Weather Card */}
+          <div className="bg-surface rounded-3xl p-6 shadow-sm border border-outline-variant">
+            <div className="flex items-center gap-3 mb-4">
+              <CloudSun className="w-6 h-6 text-orange-500" />
+              <h3 className="font-headline-sm text-on-surface font-bold">Weather</h3>
+            </div>
+            <p className="text-secondary font-body-sm mb-4 leading-relaxed">
+              Expect mild temperatures (15°C - 22°C) with occasional light rain during your stay next week.
+            </p>
+            <div className="flex flex-col gap-2">
+              <span className="bg-surface-container text-secondary text-xs font-medium px-3 py-1.5 rounded-full w-fit">
+                Bring layers
+              </span>
+              <span className="bg-surface-container text-secondary text-xs font-medium px-3 py-1.5 rounded-full w-fit">
+                Umbrella recommended
+              </span>
+            </div>
+          </div>
+
         </div>
-      )}
+      </div>
+
     </main>
   );
 }

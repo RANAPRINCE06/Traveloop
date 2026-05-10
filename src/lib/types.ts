@@ -16,6 +16,7 @@ export interface Trip {
     food: number;
     activities: number;
   };
+  itinerary?: any;
 }
 
 export interface PackingItem {
