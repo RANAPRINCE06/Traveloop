@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, ArrowRight, UserPlus } from "lucide-react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 export default function Login() {
@@ -14,8 +14,20 @@ export default function Login() {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
-
-
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          navigate(from, { replace: true });
+        }
+      } catch (err: any) {
+        console.error(err);
+        setError((err.code ? err.code + ': ' : '') + (err.message || "Google authentication failed."));
+      }
+    };
+    handleRedirectResult();
+  }, [navigate, from]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -28,19 +40,26 @@ export default function Login() {
       navigate(from, { replace: true });
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Authentication failed.");
+      setError((err.code ? err.code + ': ' : '') + (err.message || "Authentication failed."));
     }
   };
 
   const handleGoogleSignIn = async () => {
     setError(null);
+    const provider = new GoogleAuthProvider();
     try {
-      const provider = new GoogleAuthProvider();
+      // Try popup first (fastest), fallback to redirect if popup is blocked by browser policies
       await signInWithPopup(auth, provider);
       navigate(from, { replace: true });
     } catch (err: any) {
-      console.error(err);
-      setError(err?.message || "Google authentication failed.");
+      console.error('Popup sign-in failed, falling back to redirect:', err);
+      try {
+        await signInWithRedirect(auth, provider);
+        // navigation will happen in useEffect after redirect
+      } catch (err2: any) {
+        console.error('Redirect sign-in failed:', err2);
+        setError((err2.code ? err2.code + ': ' : '') + (err2.message || "Google authentication failed."));
+      }
     }
   };
 
@@ -124,18 +143,6 @@ export default function Login() {
           </svg>
           Google
         </button>
-
-        <div className="mt-lg text-center border-t border-outline-variant pt-lg">
-          <p className="font-body-sm text-body-sm text-on-surface-variant">
-            {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-            <button 
-              onClick={() => { setIsSignUp(!isSignUp); setError(null); }} 
-              className="font-label-md text-label-md text-primary hover:text-primary-container ml-xs transition-colors bg-transparent border-none p-0 cursor-pointer"
-            >
-              {isSignUp ? "Login instead" : "Sign up"}
-            </button>
-          </p>
-        </div>
       </main>
     </div>
   );

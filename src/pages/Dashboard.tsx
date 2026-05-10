@@ -104,43 +104,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="px-margin-mobile md:px-margin-desktop mb-lg">
-        <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant p-lg shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-            <div>
-              <h2 className="font-headline-sm text-headline-sm text-on-surface">Upcoming alerts</h2>
-              <p className="text-secondary text-body-sm mt-1">{alerts.length} alert{alerts.length === 1 ? "" : "s"} generated from your upcoming trips.</p>
-            </div>
-            <span className={`inline-flex rounded-full px-3 py-1 text-label-sm ${notificationsEnabled ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}>
-              {notificationsEnabled ? "Notifications enabled" : "Notifications disabled"}
-            </span>
-          </div>
-
-          {notificationsEnabled ? (
-            alerts.length > 0 ? (
-              <ul className="space-y-3">
-                {alerts.slice(0, 3).map((note) => (
-                  <li key={note.id} className="rounded-3xl border border-outline-variant p-md bg-background">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                      <span className="inline-flex rounded-full bg-primary/10 text-primary px-3 py-1 text-label-sm">{note.type}</span>
-                      <span className="text-secondary text-body-sm">{note.startDate}</span>
-                    </div>
-                    <h3 className="font-body-md text-body-md text-on-surface mt-3">{note.title}</h3>
-                    <p className="text-body-sm text-on-surface-variant mt-2">{note.message}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-body-md text-secondary">No active trip alerts yet. Create a trip with a start date within the next 30 days to see reminders and updates.</p>
-            )
-          ) : (
-            <div className="rounded-3xl bg-error-container/25 border border-error/20 p-lg text-error">
-              Notifications are disabled. Go to your notifications settings to turn them on and receive reminders for upcoming trips.
-            </div>
-          )}
-        </div>
-      </section>
-
       <div className="px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-12 gap-lg pb-xl">
         {/* Budget Summary */}
         <div className="md:col-span-4 flex flex-col gap-lg">
@@ -228,34 +191,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="bg-surface-container-low py-xl border-t border-outline-variant">
-        <div className="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="flex items-center justify-between mb-lg">
-            <h2 className="font-headline-md text-headline-md text-on-surface">Recommended Cities</h2>
-            <Compass className="w-6 h-6 text-secondary" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-            {[
-              { name: "London", country: "United Kingdom", price: "₹₹₹", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDXbwsPko3Cld3adBAadFGl1zGhPPnQj_-XZwthFaT0v2FfENbc9UTL576mvJFF3UOkbBylQ46HN5pigNVbdWbP3TB1xuOqqnFIKhkAoplp5TlfYaGZfiiAfqTcpetbTOdepeJ6vIWu3EkAvcCY1r-itn8e6izfkGFqjauTElrb5XZRi9RERF5UX8SONhHpm71TBxDLHnPVUw4Rp7DNFc_Cc2_hw36e24VzWutrVVlqntNvCD_XDriRXYEVIbcW6MJ1NvwX5ByJhNVL" },
-              { name: "Rome", country: "Italy", price: "₹₹", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBWUahjqGgnpdMtbq2SoDApemoGpecVLiASb64T21AFjTZ0ipq_kEd3F3Kp8wzCAjtdcXsYfjIdy1Me0xN9sOkZEplqQphZf-YbatrWwu9_TljhOByI6KQAH9Y5aqEpxK1Io9wIojKioTxg9OmwEdGfcScmDW8TbPdXm7UwvKbBhOD8V5F_sVocXhPbT7meI0bIEzxiPFZJa2l0yPyxVtudtd9hIpppfW-PkwZn6_BqaQ1mfrj8q0JO6SZjoL4-qj2fXosd8OosZGu6" },
-              { name: "Kyoto", country: "Japan", price: "₹₹₹", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDOFOizAZdYQrOIVgsQQZitHs5-kb4q4ek0KjyzM5Uhd3HUkaxbCPMWe35lJTlywFbNJ2GKpYyFYUkdaGTOrb8YvchigbMtG6YDIQEmShdWCTR85xqg1HJA4quG17MKi4kU_rE2kGfTViONsSsHz_TFgZKRhk1MhjkKLjEiU7OEsTa_Kyi_PoRLPy55OKO9ND0DHwT5uG9qMPAC29rhJopKL13uRonVYJaOnk2_bJdIzYhouw82JV7nu6AcRZCFlgg7hYZ8F4QylvwX" },
-            ].map((city) => (
-              <div key={city.name} className="bg-surface-container-lowest border border-surface-variant rounded-xl p-3 flex items-center gap-md hover:border-primary transition-colors cursor-pointer">
-                <div className="w-16 h-16 rounded-lg bg-surface-variant overflow-hidden flex-shrink-0">
-                  <img src={city.img} alt={city.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-grow">
-                  <h3 className="font-headline-sm text-headline-sm text-on-surface">{city.name}</h3>
-                  <p className="font-body-sm text-body-sm text-secondary">{city.country}</p>
-                </div>
-                <div className="bg-surface-container px-2 py-1 rounded-full font-label-md text-label-md text-secondary">
-                  {city.price}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* Recommended Cities removed per request */}
     </main>
   );
 }
