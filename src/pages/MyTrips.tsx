@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Calendar, MapPin, Edit2, Trash2, Loader2 } from "lucide-react";
-import { collection, query, where, onSnapshot, deleteDoc, doc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
-import { db, auth } from "@/lib/firebase";
+import { getLocalTrips, deleteLocalTrip } from "@/lib/localTrips";
 import { Trip } from "@/lib/types";
 
 export default function MyTrips() {
@@ -11,48 +9,24 @@ export default function MyTrips() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribeTrips = () => {};
+    const fetchTrips = () => {
+      const tripsData = getLocalTrips();
+      tripsData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      setTrips(tripsData);
+      setLoading(false);
+    };
 
-    const authUnsub = onAuthStateChanged(auth, (currentUser) => {
-      if (!currentUser) {
-        setTrips([]);
-        setLoading(false);
-        return;
-      }
+    fetchTrips();
 
-      const q = query(
-        collection(db, "trips"),
-        where("userId", "==", currentUser.uid)
-      );
-
-      unsubscribeTrips();
-      unsubscribeTrips = onSnapshot(q, (snapshot) => {
-        const tripsData: Trip[] = [];
-        snapshot.forEach((doc) => {
-          tripsData.push({ id: doc.id, ...doc.data() } as Trip);
-        });
-        tripsData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        setTrips(tripsData);
-        setLoading(false);
-      }, (error) => {
-        console.error("Error fetching trips:", error);
-        setLoading(false);
-      });
-    });
-
+    window.addEventListener("local-trips-updated", fetchTrips);
     return () => {
-      authUnsub();
-      unsubscribeTrips();
+      window.removeEventListener("local-trips-updated", fetchTrips);
     };
   }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this trip?")) {
-      try {
-        await deleteDoc(doc(db, "trips", id));
-      } catch (err) {
-        console.error("Error deleting trip:", err);
-      }
+      deleteLocalTrip(id);
     }
   };
 

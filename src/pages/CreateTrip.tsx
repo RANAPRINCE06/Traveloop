@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader, CheckCircle } from "lucide-react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db, auth } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
+import { addLocalTrip } from "@/lib/localTrips";
 
 export default function CreateTrip() {
   const [tripName, setTripName] = useState("");
@@ -18,10 +18,6 @@ export default function CreateTrip() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!auth.currentUser) {
-      setError("You must be logged in to create a trip.");
-      return;
-    }
     if (!tripName || !startDate || !endDate) {
       setError("Please fill all required fields.");
       return;
@@ -29,8 +25,8 @@ export default function CreateTrip() {
     
     setLoading(true);
     try {
-      const docRef = await addDoc(collection(db, "trips"), {
-        userId: auth.currentUser.uid,
+      const tripId = addLocalTrip({
+        userId: auth.currentUser?.uid || "guest",
         name: tripName,
         startDate,
         endDate,
@@ -38,11 +34,11 @@ export default function CreateTrip() {
         cities: 1,
         status: "Planning",
         image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1000&auto=format&fit=crop",
-        createdAt: serverTimestamp()
+        createdAt: Date.now()
       });
       setSuccess(true);
       setTimeout(() => {
-        navigate(`/trips/${docRef.id}`);
+        navigate(`/trips/${tripId}`);
       }, 1500);
     } catch (err: any) {
       console.error(err);
