@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Users, Edit2, Share2, PlaneLanding, MapPin, Clock, Camera, ArrowLeft, Loader2, Calendar, Map, DollarSign, Hotel, Train, FileText, Plus, Trash2, Wallet, Utensils, Activity } from "lucide-react";
+import { Users, Edit2, Share2, PlaneLanding, MapPin, Clock, Camera, ArrowLeft, Loader2, Calendar, Map, DollarSign, Hotel, Train, FileText, Plus, Trash2, Wallet, Utensils, Activity, CheckCircle } from "lucide-react";
 import { getLocalTrip, updateLocalTrip } from "@/lib/localTrips";
 import { Trip } from "@/lib/types";
 
@@ -52,6 +52,7 @@ export default function TripItinerary() {
   });
   const [formError, setFormError] = useState("");
   const [activeDayId, setActiveDayId] = useState<string>("");
+  const [savedDays, setSavedDays] = useState<Record<string, boolean>>({});
 
   const generateDays = (start: string, end: string): ItineraryDay[] => {
     if (!start || !end) return [];
@@ -154,8 +155,23 @@ export default function TripItinerary() {
 
   const estimatedBudget = calculateBudget(isEditing ? formData : (itineraryData || formData));
 
+  const handleQuickSave = (dayId: string) => {
+    if (!tripId) return;
+    try {
+      updateLocalTrip(tripId, { itinerary: formData });
+      setItineraryData(formData);
+      
+      setSavedDays(prev => ({ ...prev, [dayId]: true }));
+      setTimeout(() => {
+        setSavedDays(prev => ({ ...prev, [dayId]: false }));
+      }, 2000);
+    } catch (err) {
+      console.error("Quick save failed", err);
+    }
+  };
+
   const handleItinerarySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setFormError("");
 
     if (!formData.destination || !formData.startDate || !formData.endDate) {
@@ -187,16 +203,29 @@ export default function TripItinerary() {
           const iten = { ...tripData.itinerary };
           if (!iten.days) iten.days = [];
           setItineraryData(iten);
-          setFormData(iten);
-          setIsEditing(false);
-          if (iten.days.length > 0) setActiveDayId(iten.days[0].id);
+          
+          // Only update formData and exit edit mode if we are NOT currently editing
+          // This prevents the Quick Save from kicking the user out of the editor
+          setFormData(prev => {
+            if (isEditing) return prev; // Keep current local changes
+            return iten;
+          });
+          
+          if (!isEditing) {
+            setIsEditing(false);
+          }
+          
+          if (iten.days.length > 0 && !activeDayId) setActiveDayId(iten.days[0].id);
         } else {
-          setFormData(prev => ({
-            ...prev,
-            destination: prev.destination || tripData.name || "",
-            startDate: prev.startDate || tripData.startDate || "",
-            endDate: prev.endDate || tripData.endDate || "",
-          }));
+          setFormData(prev => {
+            if (isEditing) return prev;
+            return {
+              ...prev,
+              destination: prev.destination || tripData.name || "",
+              startDate: prev.startDate || tripData.startDate || "",
+              endDate: prev.endDate || tripData.endDate || "",
+            };
+          });
         }
       } else {
         setTrip(null);
@@ -207,7 +236,7 @@ export default function TripItinerary() {
     fetchTrip();
     window.addEventListener("local-trips-updated", fetchTrip);
     return () => window.removeEventListener("local-trips-updated", fetchTrip);
-  }, [tripId]);
+  }, [tripId, isEditing]);
 
   if (loading) {
     return <div className="flex justify-center items-center h-full pt-32"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -470,19 +499,37 @@ export default function TripItinerary() {
                             )}
                           </div>
                           
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const newDays = [...formData.days];
-                              const dayIndex = newDays.findIndex(d => d.id === day.id);
-                              if (!newDays[dayIndex].spots) newDays[dayIndex].spots = [];
-                              newDays[dayIndex].spots.push({ id: Date.now().toString(), name: "", time: "09:00", cost: "" });
-                              setFormData({...formData, days: newDays});
-                            }}
-                            className="flex items-center gap-2 text-primary font-label-sm hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors w-fit"
-                          >
-                            <Plus className="w-4 h-4" /> Add Spot
-                          </button>
+                          <div className="flex items-center gap-3 mt-4">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newDays = [...formData.days];
+                                const dayIndex = newDays.findIndex(d => d.id === day.id);
+                                if (!newDays[dayIndex].spots) newDays[dayIndex].spots = [];
+                                newDays[dayIndex].spots.push({ id: Date.now().toString(), name: "", time: "09:00", cost: "" });
+                                setFormData({...formData, days: newDays});
+                              }}
+                              className="flex items-center gap-2 text-primary font-label-sm hover:bg-primary/10 px-3 py-2 rounded-lg transition-colors w-fit border border-primary/20"
+                            >
+                              <Plus className="w-4 h-4" /> Add Spot
+                            </button>
+                            
+                            <button
+                              type="button"
+                              onClick={() => handleQuickSave(day.id)}
+                              className={`flex items-center gap-2 font-label-sm px-4 py-2 rounded-lg transition-colors border ml-auto ${
+                                savedDays[day.id] 
+                                  ? "bg-green-500/20 text-green-600 border-green-500/50" 
+                                  : "bg-primary/10 text-primary border-primary/30 hover:bg-primary/20"
+                              }`}
+                            >
+                              {savedDays[day.id] ? (
+                                <><CheckCircle className="w-4 h-4" /> Saved!</>
+                              ) : (
+                                <><CheckCircle className="w-4 h-4" /> Save {day.label}</>
+                              )}
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
