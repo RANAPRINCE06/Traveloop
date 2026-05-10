@@ -18,11 +18,12 @@ export default function PackingChecklist() {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
   const [newItemText, setNewItemText] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Clothes");
+  const [showAdd, setShowAdd] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("Clothes");
 
   useEffect(() => {
     if (!tripId) return;
-    
+
     const unsubscribe = onSnapshot(doc(db, "trips", tripId), (docSnap) => {
       if (docSnap.exists()) {
         const data = { id: docSnap.id, ...docSnap.data() } as Trip;
@@ -37,7 +38,6 @@ export default function PackingChecklist() {
   }, [tripId]);
 
   const items = trip?.packingItems || [];
-
   const updateItems = async (newItems: PackingItem[]) => {
     if (!tripId) return;
     try {
@@ -63,16 +63,34 @@ export default function PackingChecklist() {
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItemText.trim()) return;
-    
+
     const newItem: PackingItem = {
       id: Date.now().toString(),
       text: newItemText.trim(),
       packed: false,
-      category: selectedCategory
+      category: selectedCategory || "Uncategorized"
     };
-    
+
     updateItems([...items, newItem]);
     setNewItemText("");
+    setShowAdd(false);
+  };
+
+  const defaultCategories = ["Clothes", "Documents", "Electronics", "Medicine", "Other"];
+  const itemCategories = Array.from(new Set(items.map(i => i.category))).filter(Boolean);
+  const tripCategories = (trip as any)?.packingCategories || [];
+  const activeCategories = Array.from(new Set([...DEFAULT_CATEGORIES.map(c => c.name), ...tripCategories, ...itemCategories]));
+
+  const addCategory = async () => {
+    const name = window.prompt("New category name:");
+    if (!name) return;
+    try {
+      const updated = Array.from(new Set([...(trip as any)?.packingCategories || [], name]));
+      await updateDoc(doc(db, "trips", tripId!), { packingCategories: updated });
+      setSelectedCategory(name);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const resetList = () => {
@@ -89,15 +107,14 @@ export default function PackingChecklist() {
   }
 
   // Get unique categories from default AND existing items
-  const activeCategories = Array.from(new Set([...DEFAULT_CATEGORIES.map(c => c.name), ...items.map(i => i.category)]));
-  
+  const categoryList = activeCategories;
+
   const totalItems = items.length;
   const packedItems = items.filter(i => i.packed).length;
   const progressPercentage = totalItems === 0 ? 0 : Math.round((packedItems / totalItems) * 100);
 
   return (
     <main className="flex-1 w-full max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-lg pb-24 md:pb-xl flex flex-col gap-lg min-h-screen">
-      
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-md mb-2">
         <div>
@@ -109,46 +126,53 @@ export default function PackingChecklist() {
           </div>
           <p className="text-secondary font-body-md">Keep track of everything you need for your upcoming trip to <span className="font-medium text-on-surface">{trip.name}</span>.</p>
         </div>
-        <button className="bg-primary-container text-primary font-label-md px-4 py-2.5 rounded-xl flex items-center gap-2 hover:bg-primary/20 transition-colors shrink-0 border border-primary/10">
-          <Plus className="w-4 h-4" /> Add Category
-        </button>
+
+        <div className="flex items-center gap-3">
+          <button onClick={() => setShowAdd(!showAdd)} className="bg-primary text-on-primary px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-sm">
+            <Plus className="w-4 h-4" /> Add Item
+          </button>
+          <button onClick={addCategory} className="bg-surface-container-low px-4 py-2 rounded-xl border border-outline-variant hover:bg-surface-container transition-colors">+ Add Category</button>
+        </div>
       </header>
 
       {/* Input Bar */}
-      <form onSubmit={handleAdd} className="flex flex-col sm:flex-row items-center gap-3 bg-surface p-2 pl-4 rounded-2xl shadow-sm border border-outline-variant mb-4">
-        <div className="flex-1 w-full flex items-center gap-2">
-          <Plus className="w-5 h-5 text-outline" />
-          <input 
-            type="text" 
-            value={newItemText}
-            onChange={(e) => setNewItemText(e.target.value)}
-            className="w-full bg-transparent border-none outline-none text-on-surface font-body-md placeholder:text-outline"
-            placeholder="Add new item..."
-          />
-        </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-outline-variant pt-2 sm:pt-0 sm:pl-3">
-          <div className="relative">
-            <select 
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="appearance-none bg-transparent font-label-md text-on-surface py-2 pl-2 pr-8 outline-none cursor-pointer"
-            >
-              {activeCategories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            <ChevronDown className="w-4 h-4 text-outline absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+      {showAdd && (
+        <form onSubmit={handleAdd} className="flex flex-col sm:flex-row items-center gap-3 bg-surface p-2 pl-4 rounded-2xl shadow-sm border border-outline-variant mb-4">
+          <div className="flex-1 w-full flex items-center gap-2">
+            <Plus className="w-5 h-5 text-outline" />
+            <input 
+              type="text" 
+              value={newItemText}
+              onChange={(e) => setNewItemText(e.target.value)}
+              className="w-full bg-transparent border-none outline-none text-on-surface font-body-md placeholder:text-outline"
+              placeholder="Add new item..."
+              autoFocus
+            />
           </div>
-          <button type="submit" className="bg-primary text-on-primary font-label-md px-6 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-sm w-full sm:w-auto shrink-0">
-            Add Item
-          </button>
-        </div>
-      </form>
+          <div className="flex items-center gap-3 w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-outline-variant pt-2 sm:pt-0 sm:pl-3">
+            <div className="relative">
+              <select 
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="appearance-none bg-transparent font-label-md text-on-surface py-2 pl-2 pr-8 outline-none cursor-pointer"
+              >
+                {categoryList.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 text-outline absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+            <button type="submit" className="bg-primary text-on-primary font-label-md px-6 py-2.5 rounded-xl hover:bg-primary/90 transition-colors shadow-sm w-full sm:w-auto shrink-0">
+              Add Item
+            </button>
+          </div>
+        </form>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left Grid: Category Cards */}
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
-          {activeCategories.map(category => {
+          {categoryList.map(category => {
             const categoryItems = items.filter(i => i.category === category);
             const packedCount = categoryItems.filter(i => i.packed).length;
             const CatIcon = DEFAULT_CATEGORIES.find(c => c.name === category)?.icon || Package;
@@ -164,7 +188,7 @@ export default function PackingChecklist() {
                     {packedCount}/{categoryItems.length}
                   </div>
                 </div>
-                
+
                 <div className="flex-1">
                   {categoryItems.length === 0 ? (
                     <p className="text-outline italic font-body-md mt-2">No items yet</p>
@@ -199,7 +223,6 @@ export default function PackingChecklist() {
 
         {/* Right Sidebar: Progress & Weather */}
         <div className="w-full lg:w-[320px] flex flex-col gap-4 shrink-0">
-          
           {/* Progress Card */}
           <div className="bg-surface rounded-3xl p-6 shadow-sm border border-outline-variant">
             <h3 className="font-headline-sm text-on-surface font-bold mb-3">Packing Progress</h3>
@@ -242,7 +265,6 @@ export default function PackingChecklist() {
 
         </div>
       </div>
-
     </main>
   );
 }
