@@ -227,23 +227,13 @@ export default function TripItinerary() {
         <Link to="/trips" className="inline-flex items-center gap-2 text-secondary hover:text-primary mb-4 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Trips
         </Link>
-        <div
-          className="w-full h-[200px] md:h-[300px] rounded-xl overflow-hidden mb-lg relative bg-surface-container-high border border-outline-variant"
-          style={{
-            backgroundImage: `url('${trip.image || "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1000&auto=format&fit=crop"}')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-on-background/60 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 p-lg text-on-primary">
-            <div className="flex items-center gap-sm mb-xs">
-              <span className="bg-surface-container-highest/30 backdrop-blur-md px-2 py-1 rounded-full font-label-md text-label-md border border-outline/30 text-on-primary">{trip.status}</span>
-              <span className="bg-surface-container-highest/30 backdrop-blur-md px-2 py-1 rounded-full font-label-md text-label-md border border-outline/30 text-on-primary">{trip.cities} Cities</span>
-            </div>
-            <h1 className="font-headline-lg text-headline-lg">{trip.name}</h1>
-            <p className="font-body-md text-body-md opacity-90">{trip.startDate} - {trip.endDate}</p>
+        <div className="w-full rounded-xl overflow-hidden mb-lg relative bg-surface-container-high border border-outline-variant p-lg md:p-xl">
+          <div className="flex items-center gap-sm mb-xs">
+            <span className="bg-surface-container-lowest/80 px-2 py-1 rounded-full font-label-md text-label-md border border-outline-variant text-on-surface-variant">{trip.status}</span>
+            <span className="bg-surface-container-lowest/80 px-2 py-1 rounded-full font-label-md text-label-md border border-outline-variant text-on-surface-variant">{trip.cities} Cities</span>
           </div>
+          <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2">{trip.name}</h1>
+          <p className="font-body-md text-body-md text-secondary">{trip.startDate} - {trip.endDate}</p>
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">

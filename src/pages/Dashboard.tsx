@@ -145,11 +145,9 @@ export default function Dashboard() {
               recentTrips.map((trip) => (
                 <Link key={trip.id} to={`/trips/${trip.id}`} className="min-w-[280px] md:min-w-0 bg-surface-container-lowest border border-surface-variant rounded-xl overflow-hidden snap-center flex flex-col cursor-pointer group hover:border-primary transition-colors">
                   <div className="h-32 bg-surface-variant relative overflow-hidden">
-                    <img
-                      src={trip.image || "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1000&auto=format&fit=crop"}
-                      alt={trip.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                    <div className="w-full h-full bg-gradient-to-br from-surface-variant to-surface flex items-center justify-center text-[3rem] font-bold text-on-surface group-hover:scale-105 transition-transform duration-500">
+                      {trip.name?.charAt(0).toUpperCase() || "T"}
+                    </div>
                     <div className="absolute top-3 right-3 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded text-label-md font-label-md text-on-surface">{trip.status}</div>
                   </div>
                   <div className="p-md flex-grow flex flex-col justify-between">
