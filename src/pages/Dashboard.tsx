@@ -26,7 +26,11 @@ export default function Dashboard() {
       snapshot.forEach((doc) => {
         tripsData.push({ id: doc.id, ...doc.data() } as Trip);
       });
-      tripsData.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      tripsData.sort((a, b) => {
+        const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+        const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+        return timeB - timeA;
+      });
       setTrips(tripsData);
     });
 
