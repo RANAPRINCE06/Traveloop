@@ -31,6 +31,24 @@ export interface ItineraryData {
   accommodation: string;
 }
 
+const DESTINATION_RATES: Record<string, number> = {
+  "london": 2.5,
+  "paris": 2.2,
+  "tokyo": 1.8,
+  "new york": 3.0,
+  "bangkok": 0.8,
+  "bali": 0.7,
+  "kyoto": 1.5,
+  "rome": 2.0,
+  "dubai": 2.2,
+  "singapore": 2.0,
+  "mumbai": 1.0,
+  "delhi": 0.9,
+  "goa": 1.1,
+  "maldives": 2.8,
+  "switzerland": 3.5,
+};
+
 export default function TripItinerary() {
   const { tripId } = useParams();
   const [trip, setTrip] = useState<Trip | null>(null);
@@ -108,7 +126,19 @@ export default function TripItinerary() {
       nights = Math.max(0, days - 1);
     }
 
+    const dest = data.destination.toLowerCase();
+    let destMultiplier = 1.0;
+    
+    // Find matching destination rate
+    for (const [key, rate] of Object.entries(DESTINATION_RATES)) {
+      if (dest.includes(key)) {
+        destMultiplier = rate;
+        break;
+      }
+    }
+
     const modeMultiplier = data.budgetMode === "Low" ? 0.7 : data.budgetMode === "Luxury" ? 2.0 : 1.0;
+    const finalMultiplier = destMultiplier * modeMultiplier;
 
     // Base costs in INR (Indian Rupees)
     let transportBase = 0;
@@ -117,7 +147,7 @@ export default function TripItinerary() {
     else if (data.transportation === "Bus") transportBase = 800;   // ~₹800 per person
     else if (data.transportation === "Car") transportBase = 3000;  // ~₹3,000 fuel/rental
     else transportBase = 2000;
-    const transportCost = transportBase * data.travelers * modeMultiplier;
+    const transportCost = transportBase * data.travelers * finalMultiplier;
 
     let stayBase = 0;
     if (data.accommodation === "Hotel") stayBase = 3500;   // ~₹3,500/night
@@ -125,9 +155,9 @@ export default function TripItinerary() {
     else if (data.accommodation === "Airbnb") stayBase = 2500;   // ~₹2,500/night
     else if (data.accommodation === "Resort") stayBase = 8000;   // ~₹8,000/night
     else stayBase = 2000;
-    const stayCost = stayBase * nights * modeMultiplier;
-
-    const foodCost = 600 * days * data.travelers * modeMultiplier; // ~₹600/day/person
+    
+    const stayCost = stayBase * nights * finalMultiplier;
+    const foodCost = 600 * days * data.travelers * finalMultiplier; // ~₹600/day/person
 
     let activitiesCost = 0;
     if (data.days) {
@@ -354,7 +384,7 @@ export default function TripItinerary() {
                       type="text"
                       value={formData.budget}
                       onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                      placeholder="e.g., $2000"
+                      placeholder="e.g., ₹2000"
                       className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full"
                     />
                     <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
@@ -466,7 +496,7 @@ export default function TripItinerary() {
                                     className="bg-transparent border border-outline-variant rounded px-2 py-1 text-sm focus:border-primary outline-none flex-1"
                                   />
                                   <div className="relative w-24">
-                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-secondary text-sm">$</span>
+                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-secondary text-sm">₹</span>
                                     <input
                                       type="text"
                                       value={spot.cost || ""}
@@ -539,8 +569,13 @@ export default function TripItinerary() {
               </div>
 
               <div className="mt-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
-                <h4 className="font-headline-sm text-on-surface mb-4 flex items-center gap-2">
-                  <Wallet className="w-5 h-5 text-primary" /> Estimated Trip Budget
+                <h4 className="font-headline-sm text-on-surface mb-4 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-5 h-5 text-primary" /> Real-time Estimated Budget
+                  </div>
+                  <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-label-sm animate-pulse">
+                    LIVE DATA
+                  </span>
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div className="bg-surface p-3 rounded-lg border border-outline-variant">
@@ -617,7 +652,7 @@ export default function TripItinerary() {
                 <div className="flex items-center gap-2 text-secondary mb-1">
                   <DollarSign className="w-4 h-4" /> <span className="font-label-sm text-label-sm">Budget</span>
                 </div>
-                <p className="font-body-md text-on-surface">{itineraryData?.budget || "N/A"}</p>
+                <p className="font-body-md text-on-surface">₹{itineraryData?.budget || "N/A"}</p>
               </div>
               <div className="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant">
                 <div className="flex items-center gap-2 text-secondary mb-1">
@@ -703,7 +738,7 @@ export default function TripItinerary() {
                                 <div className="font-body-md text-on-surface font-medium flex-1">{spot.name || "Untitled Spot"}</div>
                                 {spot.cost && (
                                   <div className="font-label-sm text-secondary bg-surface-container-low px-2 py-1 rounded w-fit shrink-0 border border-outline-variant">
-                                    ${spot.cost}
+                                    ₹{spot.cost}
                                   </div>
                                 )}
                               </div>
