@@ -46,11 +46,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         
         {/* Main layout with navigations */}
-        <Route element={
-          <RequireAuth>
-            <Layout />
-          </RequireAuth>
-        }>
+        <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/create" element={<CreateTrip />} />
           <Route path="/trips" element={<MyTrips />} />
@@ -58,11 +54,12 @@ function App() {
           <Route path="/trips/:tripId/search" element={<ActivitySearch />} />
           <Route path="/trips/:tripId/budget" element={<Budget />} />
           <Route path="/trips/:tripId/packing" element={<PackingChecklist />} />
-          <Route path="/profile/personal" element={<ProfilePersonal />} />
-          <Route path="/profile/billing" element={<ProfileBilling />} />
-          <Route path="/profile/notifications" element={<ProfileNotifications />} />
-          <Route path="/profile/:section" element={<ProfileSection />} />
-          <Route path="/profile" element={<Profile />} />
+          
+          <Route path="/profile/personal" element={<RequireAuth><ProfilePersonal /></RequireAuth>} />
+          <Route path="/profile/billing" element={<RequireAuth><ProfileBilling /></RequireAuth>} />
+          <Route path="/profile/notifications" element={<RequireAuth><ProfileNotifications /></RequireAuth>} />
+          <Route path="/profile/:section" element={<RequireAuth><ProfileSection /></RequireAuth>} />
+          <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
         </Route>
         
         {/* Catch all */}

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Users, Edit2, Share2, PlaneLanding, MapPin, Clock, Camera, ArrowLeft, Loader2, Calendar, Map, DollarSign, Hotel, Train, FileText, Plus, Trash2, Wallet, Utensils, Activity } from "lucide-react";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getLocalTrip, updateLocalTrip } from "@/lib/localTrips";
 import { Trip } from "@/lib/types";
 
 export interface ItinerarySpot {
@@ -166,7 +165,7 @@ export default function TripItinerary() {
 
     try {
       if (tripId) {
-        await updateDoc(doc(db, "trips", tripId), { itinerary: formData });
+        updateLocalTrip(tripId, { itinerary: formData });
       }
       setItineraryData(formData);
       setIsEditing(false);
@@ -178,10 +177,10 @@ export default function TripItinerary() {
 
   useEffect(() => {
     if (!tripId) return;
-    
-    const unsubscribe = onSnapshot(doc(db, "trips", tripId), (docSnap) => {
-      if (docSnap.exists()) {
-        const tripData = { id: docSnap.id, ...docSnap.data() } as Trip;
+
+    const fetchTrip = () => {
+      const tripData = getLocalTrip(tripId);
+      if (tripData) {
         setTrip(tripData);
         
         if (tripData.itinerary) {
@@ -203,9 +202,11 @@ export default function TripItinerary() {
         setTrip(null);
       }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    fetchTrip();
+    window.addEventListener("local-trips-updated", fetchTrip);
+    return () => window.removeEventListener("local-trips-updated", fetchTrip);
   }, [tripId]);
 
   if (loading) {

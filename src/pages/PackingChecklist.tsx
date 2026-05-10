@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Circle, Plus, Trash2, Loader2, Shirt, FileText, MonitorSmartphone, BriefcaseMedical, Package, RefreshCw, CloudSun, ChevronDown } from "lucide-react";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getLocalTrip, updateLocalTrip } from "@/lib/localTrips";
 import { Trip, PackingItem } from "@/lib/types";
 
 const DEFAULT_CATEGORIES = [
@@ -23,17 +22,19 @@ export default function PackingChecklist() {
   useEffect(() => {
     if (!tripId) return;
     
-    const unsubscribe = onSnapshot(doc(db, "trips", tripId), (docSnap) => {
-      if (docSnap.exists()) {
-        const data = { id: docSnap.id, ...docSnap.data() } as Trip;
+    const fetchTrip = () => {
+      const data = getLocalTrip(tripId);
+      if (data) {
         setTrip(data);
       } else {
         setTrip(null);
       }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    fetchTrip();
+    window.addEventListener("local-trips-updated", fetchTrip);
+    return () => window.removeEventListener("local-trips-updated", fetchTrip);
   }, [tripId]);
 
   const items = trip?.packingItems || [];
@@ -41,9 +42,7 @@ export default function PackingChecklist() {
   const updateItems = async (newItems: PackingItem[]) => {
     if (!tripId) return;
     try {
-      await updateDoc(doc(db, "trips", tripId), {
-        packingItems: newItems
-      });
+      updateLocalTrip(tripId, { packingItems: newItems });
     } catch (err) {
       console.error(err);
     }
