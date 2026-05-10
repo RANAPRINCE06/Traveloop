@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Wallet, TrendingUp, Calendar, Compass } from "lucide-react";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { db, auth } from "@/lib/firebase";
+import { getLocalTrips } from "@/lib/localTrips";
+import { auth } from "@/lib/firebase";
 import { Trip } from "@/lib/types";
 import { buildNotifications, getNotificationSettings } from "@/lib/notifications";
 
@@ -14,28 +14,20 @@ export default function Dashboard() {
   const alerts = useMemo(() => buildNotifications(trips), [trips]);
 
   useEffect(() => {
-    if (!user) return;
-    
-    const q = query(
-      collection(db, "trips"),
-      where("userId", "==", user.uid)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const tripsData: Trip[] = [];
-      snapshot.forEach((doc) => {
-        tripsData.push({ id: doc.id, ...doc.data() } as Trip);
-      });
-      tripsData.sort((a, b) => {
-        const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
-        const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
-        return timeB - timeA;
-      });
+    const fetchTrips = () => {
+      const tripsData = getLocalTrips();
+      // Sort by createdAt (which is now a number from Date.now())
+      tripsData.sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0));
       setTrips(tripsData);
-    });
+    };
 
-    return () => unsubscribe();
-  }, [user]);
+    fetchTrips();
+
+    window.addEventListener("local-trips-updated", fetchTrips);
+    return () => {
+      window.removeEventListener("local-trips-updated", fetchTrips);
+    };
+  }, []);
 
   useEffect(() => {
     if (!user) {

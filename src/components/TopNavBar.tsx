@@ -3,8 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Menu, Bell } from "lucide-react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { getLocalTrips } from "@/lib/localTrips";
+import { auth } from "@/lib/firebase";
 import { buildNotifications, getNotificationSettings } from "@/lib/notifications";
 
 export function TopNavBar() {
@@ -20,43 +20,28 @@ export function TopNavBar() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   useEffect(() => {
-    let unsubscribeTrips: (() => void) | null = null;
-
-    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+    let currentUser: User | null = null;
+    const updateNotifications = () => {
       if (!currentUser) {
         setNotificationsEnabled(false);
         setNotificationCount(0);
-        if (unsubscribeTrips) {
-          unsubscribeTrips();
-          unsubscribeTrips = null;
-        }
         return;
       }
-
       setNotificationsEnabled(getNotificationSettings(currentUser.uid).enabled);
-      if (unsubscribeTrips) {
-        unsubscribeTrips();
-      }
+      const tripsData = getLocalTrips();
+      setNotificationCount(buildNotifications(tripsData).length);
+    };
 
-      const tripsQuery = query(collection(db, "trips"), where("userId", "==", currentUser.uid));
-      unsubscribeTrips = onSnapshot(
-        tripsQuery,
-        (snapshot) => {
-          const trips: any[] = [];
-          snapshot.forEach((doc) => trips.push({ id: doc.id, ...doc.data() }));
-          setNotificationCount(buildNotifications(trips).length);
-        },
-        () => {
-          setNotificationCount(0);
-        }
-      );
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      updateNotifications();
     });
+
+    window.addEventListener("local-trips-updated", updateNotifications);
 
     return () => {
       unsubscribeAuth();
-      if (unsubscribeTrips) {
-        unsubscribeTrips();
-      }
+      window.removeEventListener("local-trips-updated", updateNotifications);
     };
   }, []);
 

@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Settings, TrendingUp, Calendar, Hotel, Train, Utensils, Ticket, Loader2, Check } from "lucide-react";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getLocalTrip, updateLocalTrip } from "@/lib/localTrips";
 import { Trip } from "@/lib/types";
 
 export default function Budget() {
@@ -15,17 +14,19 @@ export default function Budget() {
   useEffect(() => {
     if (!tripId) return;
     
-    const unsubscribe = onSnapshot(doc(db, "trips", tripId), (docSnap) => {
-      if (docSnap.exists()) {
-        const data = { id: docSnap.id, ...docSnap.data() } as Trip;
+    const fetchTrip = () => {
+      const data = getLocalTrip(tripId);
+      if (data) {
         setTrip(data);
       } else {
         setTrip(null);
       }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    fetchTrip();
+    window.addEventListener("local-trips-updated", fetchTrip);
+    return () => window.removeEventListener("local-trips-updated", fetchTrip);
   }, [tripId]);
 
   const budget = trip?.budget || { stay: 0, transport: 0, food: 0, activities: 0 };
@@ -41,12 +42,15 @@ export default function Budget() {
   };
   const days = getDays();
 
-  const handleSave = async (key: keyof typeof budget) => {
+  const handleSave = (key: keyof typeof budget) => {
     if (!tripId) return;
     const val = parseInt(editValue) || 0;
     try {
-      await updateDoc(doc(db, "trips", tripId), {
-        [`budget.${key}`]: val
+      updateLocalTrip(tripId, {
+        budget: {
+          ...budget,
+          [key]: val
+        }
       });
       setEditingCat(null);
     } catch (err) {
