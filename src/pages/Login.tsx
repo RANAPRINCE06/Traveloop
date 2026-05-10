@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, ArrowRight, UserPlus } from "lucide-react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 export default function Login() {
@@ -13,6 +13,21 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
+
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          navigate(from, { replace: true });
+        }
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Google authentication failed.");
+      }
+    };
+    handleRedirectResult();
+  }, [navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +49,8 @@ export default function Login() {
     setError(null);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      navigate(from, { replace: true });
+      await signInWithRedirect(auth, provider);
+      // Note: Navigation will happen in useEffect after redirect
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Google authentication failed.");
@@ -43,11 +58,11 @@ export default function Login() {
   };
 
   return (
-    <div className="bg-background min-h-screen flex items-center justify-center p-margin-mobile">
-      <main className="w-full max-w-[400px] bg-surface-container-lowest border border-outline-variant rounded-xl p-lg md:p-margin-desktop shadow-sm">
-        <div className="text-center mb-xl">
+    <div className="page-shell min-h-screen flex items-center justify-center px-margin-mobile py-12">
+      <main className="glass-panel w-full max-w-[450px] p-8 sm:p-10">
+        <div className="text-center mb-10">
           <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">Traveloop</h1>
-          <p className="font-body-sm text-body-sm text-on-surface-variant mt-xs">Your helpful companion for the journey ahead.</p>
+          <p className="font-body-sm text-body-sm text-on-surface-variant mt-3">A premium travel gateway for curated trips and seamless planning.</p>
         </div>
 
         {error && (
@@ -96,7 +111,7 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full py-md bg-primary text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary-container active:scale-[0.98] transition-all flex justify-center items-center gap-sm shadow-sm hover:shadow-md"
+            className="premium-button w-full justify-center gap-2"
           >
             {isSignUp ? "Sign Up" : "Login"}
             {isSignUp ? <UserPlus className="w-[18px] h-[18px]" /> : <ArrowRight className="w-[18px] h-[18px]" />}
@@ -112,7 +127,7 @@ export default function Login() {
         <button
           onClick={handleGoogleSignIn}
           type="button"
-          className="mt-4 w-full flex items-center justify-center gap-2 py-md bg-surface-container-lowest border border-outline-variant rounded-lg hover:bg-surface-container-low active:scale-[0.98] transition-all font-label-md text-label-md text-on-surface hover:shadow-sm"
+          className="mt-4 w-full flex items-center justify-center gap-2 py-md premium-button-secondary"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

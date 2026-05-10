@@ -4,8 +4,18 @@ import { User as UserIcon, Settings, CreditCard, Bell, HelpCircle, LogOut } from
 import { signOut, onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
+type ProfileData = {
+  name?: string;
+  username?: string;
+  email?: string;
+  contactNumber?: string;
+};
+
+const getStorageKey = (uid: string | null) => `traveloop-profile-${uid || "guest"}`;
+
 export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -13,6 +23,22 @@ export default function Profile() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const saved = localStorage.getItem(getStorageKey(user.uid));
+    if (saved) {
+      try {
+        setProfileData(JSON.parse(saved) as ProfileData);
+      } catch {
+        setProfileData(null);
+      }
+      return;
+    }
+
+    setProfileData(null);
+  }, [user]);
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
@@ -39,10 +65,10 @@ export default function Profile() {
         </div>
         <div className="text-center">
           <h1 className="font-headline-lg text-headline-lg text-on-surface">
-            {user?.displayName || "Traveler"}
+            {profileData?.name || user?.displayName || "Traveler"}
           </h1>
           <p className="font-body-md text-body-md text-secondary">
-            {user?.email || "No email available"}
+            {profileData?.email || user?.email || "No email available"}
           </p>
         </div>
       </section>
@@ -57,19 +83,12 @@ export default function Profile() {
             </div>
             <span className="text-secondary">&gt;</span>
           </Link>
-          <Link to="/profile/billing" className="flex items-center justify-between p-md hover:bg-surface-container-low transition-colors border-b border-surface-variant">
+          <Link to="/profile/billing" className="flex items-center justify-between p-md hover:bg-surface-container-low transition-colors">
             <div className="flex items-center gap-md text-on-surface">
                <CreditCard className="w-[20px] h-[20px] text-primary" />
                <span className="font-body-md text-body-md">Billing & Payments</span>
             </div>
             <span className="text-secondary">&gt;</span>
-          </Link>
-          <Link to="/profile/preferences" className="flex items-center justify-between p-md hover:bg-surface-container-low transition-colors">
-            <div className="flex items-center gap-md text-on-surface">
-               <Settings className="w-[20px] h-[20px] text-primary" />
-               <span className="font-body-md text-body-md">Preferences</span>
-            </div>
-             <span className="text-secondary">&gt;</span>
           </Link>
         </div>
       </section>
