@@ -93,6 +93,11 @@ export default function TripItinerary() {
     return days;
   };
 
+  const parseBudgetValue = (value: string) => {
+    const numeric = parseFloat(value.replace(/[^0-9.]/g, "") || "0");
+    return Number.isNaN(numeric) ? 0 : numeric;
+  };
+
   useEffect(() => {
     if (formData.startDate && formData.endDate) {
       setFormData(prev => {
@@ -174,6 +179,24 @@ export default function TripItinerary() {
     }
 
     const total = transportCost + stayCost + foodCost + activitiesCost;
+    const userBudget = parseBudgetValue(data.budget);
+
+    if (userBudget > 0) {
+      const budgetTransport = Math.round(userBudget * 0.25);
+      const budgetStay = Math.round(userBudget * 0.40);
+      const budgetFood = Math.round(userBudget * 0.25);
+      const budgetActivities = Math.max(0, userBudget - (budgetTransport + budgetStay + budgetFood));
+
+      return {
+        transport: budgetTransport,
+        stay: budgetStay,
+        food: budgetFood,
+        activities: budgetActivities,
+        total: Math.round(userBudget),
+        days
+      };
+    }
+
     return {
       transport: Math.round(transportCost),
       stay: Math.round(stayCost),
@@ -414,7 +437,7 @@ export default function TripItinerary() {
                     <select
                       value={formData.transportation}
                       onChange={(e) => setFormData({...formData, transportation: e.target.value})}
-                      className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-black focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
+                      className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
                     >
                       <option className="text-black" value="Flight">Flight</option>
                       <option className="text-black" value="Train">Train</option>
@@ -431,7 +454,7 @@ export default function TripItinerary() {
                     <select
                       value={formData.accommodation}
                       onChange={(e) => setFormData({...formData, accommodation: e.target.value})}
-                      className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-black focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
+                      className="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full appearance-none"
                     >
                       <option className="text-black" value="Hotel">Hotel</option>
                       <option className="text-black" value="Hostel">Hostel</option>
@@ -569,14 +592,21 @@ export default function TripItinerary() {
               </div>
 
               <div className="mt-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
-                <h4 className="font-headline-sm text-on-surface mb-4 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                  <h4 className="font-headline-sm text-on-surface flex items-center gap-2">
                     <Wallet className="w-5 h-5 text-primary" /> Real-time Estimated Budget
+                  </h4>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                    {parseBudgetValue(formData.budget) > 0 && (
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-label-sm">
+                        Based on your budget target of ₹{parseBudgetValue(formData.budget).toLocaleString('en-IN')}
+                      </span>
+                    )}
+                    <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-label-sm animate-pulse">
+                      LIVE DATA
+                    </span>
                   </div>
-                  <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-label-sm animate-pulse">
-                    LIVE DATA
-                  </span>
-                </h4>
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div className="bg-surface p-3 rounded-lg border border-outline-variant">
                     <div className="flex items-center gap-2 text-secondary mb-1">
@@ -650,7 +680,7 @@ export default function TripItinerary() {
               </div>
               <div className="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant">
                 <div className="flex items-center gap-2 text-secondary mb-1">
-                  <DollarSign className="w-4 h-4" /> <span className="font-label-sm text-label-sm">Budget</span>
+                  <IndianRupee className="w-4 h-4" /> <span className="font-label-sm text-label-sm">Budget</span>
                 </div>
                 <p className="font-body-md text-on-surface">₹{itineraryData?.budget || "N/A"}</p>
               </div>
