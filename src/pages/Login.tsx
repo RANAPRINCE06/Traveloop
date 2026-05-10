@@ -124,18 +124,6 @@ export default function Login() {
           </svg>
           Google
         </button>
-
-        <div className="mt-lg text-center border-t border-outline-variant pt-lg">
-          <p className="font-body-sm text-body-sm text-on-surface-variant">
-            {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-            <button 
-              onClick={() => { setIsSignUp(!isSignUp); setError(null); }} 
-              className="font-label-md text-label-md text-primary hover:text-primary-container ml-xs transition-colors bg-transparent border-none p-0 cursor-pointer"
-            >
-              {isSignUp ? "Login instead" : "Sign up"}
-            </button>
-          </p>
-        </div>
       </main>
     </div>
   );

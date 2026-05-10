@@ -58,43 +58,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="px-margin-mobile md:px-margin-desktop mb-lg">
-        <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant p-lg shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-            <div>
-              <h2 className="font-headline-sm text-headline-sm text-on-surface">Upcoming alerts</h2>
-              <p className="text-secondary text-body-sm mt-1">{alerts.length} alert{alerts.length === 1 ? "" : "s"} generated from your upcoming trips.</p>
-            </div>
-            <span className={`inline-flex rounded-full px-3 py-1 text-label-sm ${notificationsEnabled ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}>
-              {notificationsEnabled ? "Notifications enabled" : "Notifications disabled"}
-            </span>
-          </div>
-
-          {notificationsEnabled ? (
-            alerts.length > 0 ? (
-              <ul className="space-y-3">
-                {alerts.slice(0, 3).map((note) => (
-                  <li key={note.id} className="rounded-3xl border border-outline-variant p-md bg-background">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                      <span className="inline-flex rounded-full bg-primary/10 text-primary px-3 py-1 text-label-sm">{note.type}</span>
-                      <span className="text-secondary text-body-sm">{note.startDate}</span>
-                    </div>
-                    <h3 className="font-body-md text-body-md text-on-surface mt-3">{note.title}</h3>
-                    <p className="text-body-sm text-on-surface-variant mt-2">{note.message}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-body-md text-secondary">No active trip alerts yet. Create a trip with a start date within the next 30 days to see reminders and updates.</p>
-            )
-          ) : (
-            <div className="rounded-3xl bg-error-container/25 border border-error/20 p-lg text-error">
-              Notifications are disabled. Go to your notifications settings to turn them on and receive reminders for upcoming trips.
-            </div>
-          )}
-        </div>
-      </section>
-
       <div className="px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-12 gap-lg pb-xl">
         {/* Budget Summary */}
         <div className="md:col-span-4 flex flex-col gap-lg">
@@ -161,6 +124,43 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      <section className="px-margin-mobile md:px-margin-desktop mb-lg">
+        <div className="rounded-3xl bg-surface-container-lowest border border-outline-variant p-lg shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <div>
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">Upcoming alerts</h2>
+              <p className="text-secondary text-body-sm mt-1">{alerts.length} alert{alerts.length === 1 ? "" : "s"} generated from your upcoming trips.</p>
+            </div>
+            <span className={`inline-flex rounded-full px-3 py-1 text-label-sm ${notificationsEnabled ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}>
+              {notificationsEnabled ? "Notifications enabled" : "Notifications disabled"}
+            </span>
+          </div>
+
+          {notificationsEnabled ? (
+            alerts.length > 0 ? (
+              <ul className="space-y-3">
+                {alerts.slice(0, 3).map((note) => (
+                  <li key={note.id} className="rounded-3xl border border-outline-variant p-md bg-background">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                      <span className="inline-flex rounded-full bg-primary/10 text-primary px-3 py-1 text-label-sm">{note.type}</span>
+                      <span className="text-secondary text-body-sm">{note.startDate}</span>
+                    </div>
+                    <h3 className="font-body-md text-body-md text-on-surface mt-3">{note.title}</h3>
+                    <p className="text-body-sm text-on-surface-variant mt-2">{note.message}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-body-md text-secondary">No active trip alerts yet. Create a trip with a start date within the next 30 days to see reminders and updates.</p>
+            )
+          ) : (
+            <div className="rounded-3xl bg-error-container/25 border border-error/20 p-lg text-error">
+              Notifications are disabled. Go to your notifications settings to turn them on and receive reminders for upcoming trips.
+            </div>
+          )}
+        </div>
+      </section>
 
       <div className="bg-surface-container-low py-xl border-t border-outline-variant">
         <div className="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop">
